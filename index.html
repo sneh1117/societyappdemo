@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VARA Society Accounts | Demo</title>
+<!--
+  VARA Enterprises - Society Accounts demo (single file, no build step).
+  Open in a browser, or use the VS Code "Live Server" extension.
+  Demo logins (password for all: demo123): vara, treasurer1, secretary1, member101 ...
+  All Tally 7.1 code lives in the `Tally` object (search for "TALLY ADAPTER"). Swap that one object
+  for a real backend call later and no screen needs to change.
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--ui:"Plus Jakarta Sans",system-ui,sans-serif;--serif:Fraunces,Georgia,serif;
+--bg:#f2f5f5;--card:#fff;--ink:#13262a;--mute:#5a6d71;--line:#dbe4e5;--bar1:#c3d3d4;--side:#0f3b3a;--sidei:#c5dcd7;--sideh:#17504d;--btn:#0f3b3a;--btni:#fff;--acc:#e39a1b;--ok:#1b7a52;--okbg:#ddf2e6;--bad:#b4382c;--badbg:#fae3e0;--warn:#855600;--warnbg:#fdefcf;--teal:#0f7c74;
+box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root{--bg:#0a1a1c;--card:#112629;--ink:#e3eeee;--mute:#97adb0;--line:#1f3a3d;--bar1:#2c4a4d;--side:#071d1e;--sidei:#a9c9c3;--sideh:#123634;--btn:#4cc3a7;--btni:#04201d;--ok:#5fd09a;--okbg:#123a2b;--bad:#ff8f82;--badbg:#431f1c;--warn:#f0c05a;--warnbg:#3a2c0b;--teal:#4cc3a7}}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.55 var(--ui);padding-bottom:env(safe-area-inset-bottom,0px)}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:-.01em}
+h1{font-size:28px;line-height:1.15}h2{font-size:19px}h3{font-size:16px}p{margin:0}
+.mute{color:var(--mute)}.sm{font-size:13px}.r{text-align:right}.b{font-weight:600}.bad{color:var(--bad)}.ok{color:var(--ok)}
+.num{font-family:var(--serif);font-weight:600}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>label{flex:1;min-width:120px}
+.row-b{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.row-b h2{margin:0}
+/* demo bar */
+.demo{position:sticky;top:0;z-index:20;background:#101a1b;color:#e8f0ef;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:6px 18px;font-size:13px;min-height:38px}
+.demo b{color:var(--acc);font-weight:600}.demo .sp{flex:1}
+.demo label{margin:0;font-weight:500;display:flex;gap:8px;align-items:center}
+.demo select{width:auto;margin:0;padding:3px 8px;background:#1e2d2f;border-color:#34494c;color:#e8f0ef;font-size:13px}
+.demo button{background:transparent;border:1px solid #4a6468;color:#e8f0ef;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:13px}
+/* shell */
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:calc(100vh - 38px)}
+.side{background:var(--side);color:var(--sidei);padding:18px 12px;display:flex;flex-direction:column;gap:3px;position:sticky;top:38px;height:calc(100vh - 38px);overflow-y:auto}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 8px 18px}
+.mark{width:36px;height:36px;border-radius:8px;background:var(--acc);color:#2b1c00;display:grid;place-items:center;font:600 20px var(--serif);flex:none}
+.brand b{display:block;color:#fff;font-size:15px;line-height:1.2}.brand span{font-size:12px;opacity:.75}
+.nv{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;color:inherit;padding:9px 10px;border-radius:0 8px 8px 0;cursor:pointer}
+.nv svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nv:hover{background:var(--sideh)}.nv.on{background:var(--sideh);color:#fff;border-left-color:var(--acc);font-weight:600}
+.su{margin-top:auto;padding:12px 8px 0;border-top:1px solid #ffffff22;font-size:13px}.su b{display:block;color:#fff}
+.su button{margin-top:8px;background:transparent;border:1px solid #ffffff44;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:13px}
+.main{padding:24px 30px 60px;max-width:1240px;width:100%}
+.ph{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:20px}
+.ph-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.swsoc{width:auto;margin:0}
+.chip{display:inline-block;background:var(--warnbg);color:var(--warn);border-radius:999px;padding:3px 11px;font-size:13px;font-weight:600}
+/* blocks */
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card>h2{margin-bottom:12px}.g2 .card{margin-bottom:0}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px}.stat span{display:block;color:var(--mute);font-size:13px}.stat b{font-family:var(--serif);font-size:22px;font-weight:600}
+label{display:block;font-weight:600;margin-bottom:12px}
+input,select,textarea{display:block;width:100%;margin-top:4px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);outline:0}
+input:focus,select:focus,textarea:focus{border-color:var(--teal)}
+.btn{background:var(--btn);color:var(--btni);border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer}.btn:hover{filter:brightness(1.12)}.btn.sm{padding:5px 11px;font-size:13px}.btn:disabled{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--ink)}.ghost:hover{border-color:var(--teal)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.err{color:var(--bad);min-height:20px;margin-bottom:8px;font-size:14px}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:16px}
+table{border-collapse:collapse;width:100%;min-width:520px}th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mute);font-weight:500;font-size:13px}tr:last-child td{border:0}th.r,td.r{text-align:right}
+.click{cursor:pointer}.click:hover{background:var(--bg)}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12.5px;font-weight:600}.tag.ok{background:var(--okbg);color:var(--ok)}.tag.bad{background:var(--badbg);color:var(--bad)}.tag.warn{background:var(--warnbg);color:var(--warn)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}.tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);padding:8px 14px;cursor:pointer;white-space:nowrap}.tabs .on{color:var(--ink);border-color:var(--acc);font-weight:600}
+.empty{padding:26px;text-align:center;color:var(--mute)}
+.li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:center}.li:last-child{border:0}.li small{display:block;color:var(--mute)}
+.sum div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line)}.sum .tot{font-weight:700;border-bottom:0;font-size:16px}
+.note{background:var(--warnbg);color:var(--warn);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13.5px}
+/* charts */
+.hbr{display:grid;grid-template-columns:130px 1fr 78px;gap:10px;align-items:center;padding:5px 0;font-size:13.5px}.hbr[onclick]{cursor:pointer}.hbr[onclick]:hover .hl{text-decoration:underline}
+.hl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ht{height:10px;background:var(--bar1);border-radius:5px;overflow:hidden}.ht i{display:block;height:100%;background:var(--teal);border-radius:5px}.hv{text-align:right;font-weight:600}
+.cols{display:flex;gap:18px;align-items:flex-end;height:200px;padding-top:8px}.col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%}.col small{color:var(--mute)}
+.cb{flex:1;width:100%;display:flex;gap:4px;align-items:flex-end;justify-content:center}.cb i{display:block;border-radius:4px 4px 0 0;width:34%;max-width:30px}
+.b1{background:var(--bar1)}.b2{background:var(--teal)}
+.lg{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--mute);margin-top:8px}.lg i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-left:10px}.lg i:first-child{margin-left:0}
+.dn{display:flex;gap:22px;align-items:center;flex-wrap:wrap}.ring{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;position:relative;flex:none}.ring:before{content:"";position:absolute;inset:26px;background:var(--card);border-radius:50%}.ring span{position:relative;font:600 15px var(--serif);text-align:center}
+.dn ul{list-style:none;margin:0;padding:0;flex:1;min-width:180px}.dn li{display:flex;gap:8px;align-items:center;padding:3px 0;font-size:13.5px}.dn li i{width:10px;height:10px;border-radius:3px;flex:none}.dn li b{margin-left:auto}
+.stack{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:12px 0 10px}.stack i{display:block;height:100%}
+/* tally sync */
+.pipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:12px}
+.ps{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:28px 1fr;gap:0 10px;align-items:center;opacity:.6}
+.ps b{width:28px;height:28px;border-radius:50%;background:var(--bar1);display:grid;place-items:center;font-size:13px;grid-row:span 2}.ps span{font-weight:600}.ps small{color:var(--mute);font-size:12px}
+.ps.act{opacity:1;border-color:var(--acc)}.ps.act b{background:var(--acc);color:#2b1c00;animation:pl 1s infinite}.ps.done{opacity:1;border-color:var(--ok)}.ps.done b{background:var(--ok);color:#fff}
+@keyframes pl{50%{transform:scale(1.18)}}@media (prefers-reduced-motion:reduce){.ps.act b{animation:none}}
+.con{background:#0b1f21;color:#bfe0d8;border-radius:10px;padding:12px 14px;font:12.5px/1.7 ui-monospace,Menlo,Consolas,monospace;height:190px;overflow:auto;white-space:pre-wrap}
+details.card summary{cursor:pointer;font:600 17px var(--serif)}details.card[open] summary{margin-bottom:12px}
+pre{background:#0b1f21;color:#bfe0d8;border-radius:10px;padding:12px 14px;overflow:auto;font:12.5px/1.6 ui-monospace,Menlo,Consolas,monospace;margin:8px 0}
+/* member */
+.hero{background:var(--side);color:#fff;border-color:var(--side)}.hero .mute{color:#a9c9c3}.hero .big{font:600 46px/1.1 var(--serif);margin:6px 0 12px}.hero .btn{background:var(--acc);color:#2b1c00}
+dl{display:grid;grid-template-columns:minmax(120px,200px) 1fr;gap:0;margin:0}dt,dd{margin:0;padding:10px 0;border-bottom:1px solid var(--line)}dt{color:var(--mute)}dd{font-weight:600}
+.upi{display:flex;gap:16px;align-items:center;margin:12px 0}
+.wa{background:#dcf8c6;color:#111;border-radius:10px 10px 10px 2px;padding:10px 12px;font-size:13.5px;max-width:440px;white-space:pre-wrap;margin:10px 0}
+.notice{border-bottom:1px solid var(--line);padding:14px 0}.notice:last-child{border:0}.notice p{margin:6px 0}
+/* login */
+.lg-wrap{display:grid;grid-template-columns:1.1fr 1fr;min-height:100vh}
+.lg-l{background:var(--side);color:#cfe3df;padding:48px;display:flex;flex-direction:column;justify-content:center;gap:22px}.lg-l h1{color:#fff;font-size:36px;max-width:520px}.lg-l ul{margin:0;padding-left:18px;max-width:460px;line-height:1.7}
+.lg-r{padding:48px;display:flex;flex-direction:column;justify-content:center;gap:14px;max-width:460px;width:100%;margin:0 auto}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips button{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px 12px;font-size:13px;cursor:pointer}
+/* dialog and toast */
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:22px;width:92%;max-width:460px}dialog.wide{max-width:740px}dialog::backdrop{background:#0009}
+dialog h2{margin-bottom:6px}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#101a1b;color:#fff;padding:10px 18px;border-radius:10px;z-index:99;max-width:90%;box-shadow:0 6px 24px #0005}
+@media (max-width:860px){.app{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;align-items:center;overflow-x:auto;padding:8px;gap:2px}.brand{padding:0 8px 0 4px}.brand span{display:none}.nv{border-left:0;border-bottom:3px solid transparent;border-radius:8px 8px 0 0;white-space:nowrap;width:auto}.nv.on{border-bottom-color:var(--acc)}.su{margin:0 0 0 auto;border:0;padding:0 4px;white-space:nowrap}.main{padding:18px 14px 60px}.lg-wrap{grid-template-columns:1fr}.lg-l,.lg-r{padding:28px 20px}.hbr{grid-template-columns:100px 1fr 70px}}
+@media print{.demo,.side,.noprint,.toast{display:none!important}.app{display:block}.main{padding:0;max-width:none}body{background:#fff;color:#000}.card,.tw{border-color:#bbb}.pd #app,.pd .demo{display:none!important}.pd dialog{position:static;border:0;max-width:none;width:100%;padding:0}.pd dialog .row,.pd dialog .noprint{display:none}}
+</style>
+</head>
+<body>
+<div id="app"></div><dialog id="dlg"></dialog>
+<script>
+/* ================================================================
+   1. MOCK DATA  (same generator as the previous demo so the numbers match)
+   ================================================================ */
+const NOW=new Date(2026,9,5);               // demo clock = 05 Oct 2026. In production use: new Date()
+const FN=["Aarav","Priya","Rohan","Sneha","Vikram","Anjali","Karan","Meera","Rahul","Pooja","Amit","Neha","Sanjay","Kavita","Deepak","Ritu"];
+const LN=["Sharma","Patil","Deshmukh","Iyer","Shah","Mehta","Nair","Joshi","Kulkarni","Gupta","Singh","Rao"];
+const SOC=["Sai Krupa CHS","Shree Ganesh CHS","Om Sai Residency","Lotus Heights","Green Park CHS","Sunrise Towers","Harmony CHS","Vasant Vihar","Orchid Apartments","Ocean View CHS"];
+const MONTHS=["Jul 2026","Aug 2026","Sep 2026"],DATES=["08 Jul 2026","09 Aug 2026","10 Sep 2026"],MODES=["UPI","Cheque","NEFT","Cash"];
+const EXP=[["Security services",24000],["Lift maintenance",9500],["Water tanker",6800],["Common electricity",15200],["Housekeeping",12000]];
+const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const ALLM=["Jul 2026","Aug 2026","Sep 2026","Oct 2026","Nov 2026","Dec 2026"];
+let seed=7;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
+const societies=SOC.map((n,i)=>({id:i+1,name:n,cfg:{svc:1800,int:21,due:10,nonocc:10,sink:.25,rep:.75,cost:600}})),
+  members=[],bills=[],pays=[],exps=[],audit=[],notices=[],exc=[];
+let pid=1,eid=0,nid=100;
+/* monthly charge for one member from the society's bye-law rates */
+function chg(m){const c=socOf(m.soc).cfg,sv=c.svc,rp=Math.round(m.area*c.cost*c.rep/1200),sk=Math.round(m.area*c.cost*c.sink/1200),no=m.let?Math.round(sv*c.nonocc/100):0,pk=m.park||0;return{sv,rp,sk,no,pk,t:sv+rp+sk+no+pk}}
+const dueDate=(sid,mo)=>new Date(+mo.split(" ")[1],MN.indexOf(mo.split(" ")[0]),socOf(sid).cfg.due);
+/* simple (never compounded) interest from due date until today */
+const intOf=(m,b)=>{const d=Math.floor((NOW-dueDate(m.soc,b.mo))/864e5);return d>0?Math.round(b.amt*socOf(m.soc).cfg.int/100*d/365):0};
+societies.forEach(s=>{for(let k=1;k<=8;k++){
+  const m={id:s.id*100+k,soc:s.id,name:FN[(s.id*3+k*5)%16]+" "+LN[(s.id+k*7)%12],flat:"ABCD"[k%4]+"-"+(100*(1+Math.floor((k-1)/4))+k),area:450+(s.id*37+k*91)%650};
+  m.let=(s.id+k)%7==0;m.park=k%3==0?300:0;m.fee=chg(m).t;
+  m.phone="9"+String(100000000+(m.id*7919317)%899999999);m.email=m.name.toLowerCase().replace(" ",".")+"@mail.com";
+  m.since=2012+(m.id%9);m.adv=m.id%4==0?m.fee:0;members.push(m);
+  MONTHS.forEach((mo,j)=>{bills.push({mem:m.id,mo,amt:m.fee});
+    if(rnd()<(j==2?.45:.78))pays.push({id:pid++,mem:m.id,soc:s.id,mo,amt:m.fee,date:DATES[j],mode:MODES[Math.floor(rnd()*4)],src:"Tally",tally:true})})}
+  EXP.forEach((e,i)=>{if((i+s.id)%5!=0)exps.push({soc:s.id,d:e[0],amt:e[1]+s.id*300,date:"03 Sep 2026"})})});
+pays.forEach(p=>p.vch="RV-"+(3000+p.id));
+societies.forEach(s=>{
+  notices.push({id:++nid,soc:s.id,type:"Notice",title:"Water tank cleaning on 12 Oct",body:"Water supply will be off from 10 am to 2 pm. Please store water in advance.",date:"01 Oct 2026"});
+  notices.push({id:++nid,soc:s.id,type:"AGM",title:"Annual General Meeting 2026",body:"Sunday, 25 Oct 2026, 11:00 am at the society hall. Agenda: audited accounts 2025-26, budget 2026-27, appointment of auditor, repair plan. Please confirm if you will attend.",date:"28 Sep 2026",rsvp:members.filter(m=>m.soc==s.id&&m.id%3==0).map(m=>m.id)})});
+const users=[{u:"vara",role:"super",name:"VARA Enterprises"}];
+societies.forEach(s=>users.push({u:"treasurer"+s.id,role:"treasurer",soc:s.id,name:"Treasurer, "+s.name},{u:"secretary"+s.id,role:"secretary",soc:s.id,name:"Secretary, "+s.name}));
+members.forEach(m=>users.push({u:"member"+m.id,role:"member",soc:m.soc,mem:m.id,name:m.name}));
+const ROLE={super:"Super user",treasurer:"Treasurer",secretary:"Secretary",member:"Member"};
+const sync={};societies.forEach(s=>sync[s.id]={at:"03 Oct 2026, 09:00 am"});
+const mapped=new Set();
+
+/* ================================================================
+   2. TALLY ADAPTER  (the only place that knows about Tally 7.1)
+   Today: reads the mock data above.
+   Later: replace pull() with a call to your backend, e.g.
+          POST /api/tally/pull {society}  ->  backend talks to Tally 7.1 over ODBC or XML (port 9000)
+          and returns the same shape: { ledgers, vouchers:[{flat,month,amount,mode,date}], exception }
+   ================================================================ */
+const Tally={
+  pull(socId){
+    const ms=members.filter(m=>m.soc==socId),open=[];
+    ms.forEach(m=>{const b=bills.find(x=>x.mem==m.id&&!paid(m.id,x.mo));if(b)open.push({m,b})});
+    const vouchers=open.slice(0,2).map((x,i)=>({flat:x.m.flat,ledger:x.m.name,month:x.b.mo,amount:x.b.amt,mode:MODES[(i+1)%4],date:fmtD(NOW)}));
+    let exception=null;
+    if(!mapped.has(socId)){const m=ms[1];exception={ledger:m.name.split(" ")[1]+" "+m.name[0]+". - "+m.flat.toLowerCase(),mem:m.id,conf:92}}
+    return{ledgers:ms.length+5,vouchers,exception}}};
+/* storing what the adapter returned in the app database */
+function applyPull(id,d){let n=0;
+  d.vouchers.forEach(v=>{const m=members.find(x=>x.soc==id&&x.flat==v.flat);if(!m||paid(m.id,v.month))return;
+    const b=bills.find(x=>x.mem==m.id&&x.mo==v.month),p={id:pid++,mem:m.id,soc:id,mo:v.month,amt:b.amt,int:intOf(m,b),date:v.date,mode:v.mode,src:"Tally",tally:true};
+    p.vch="RV-"+(3000+p.id);pays.push(p);n++});
+  const pend=pays.filter(p=>p.soc==id&&!p.tally);pend.forEach(p=>{p.tally=true;p.vch="RV-"+(3000+p.id)});
+  if(d.exception&&!mapped.has(id)){mapped.add(id);exc.push({id:++eid,soc:id,ledger:d.exception.ledger,mem:d.exception.mem,conf:d.exception.conf})}
+  return{n,m:pend.length}}
+
+/* ================================================================
+   3. HELPERS AND ACCESS RULES
+   ================================================================ */
+let me=null,st={soc:null,tab:"port",q:"",f:"all",rep:"ie",ch:"WhatsApp",sm:"all"},pay={mo:[],method:"UPI"},run={on:false,step:-1,log:[]};
+const $=s=>document.querySelector(s);
+const inr=n=>"\u20B9"+Math.round(n).toLocaleString("en-IN");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtD=d=>String(d.getDate()).padStart(2,"0")+" "+MN[d.getMonth()]+" "+d.getFullYear(),today=()=>fmtD(NOW);
+const clock=()=>new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const pd=s=>{const [d,m,y]=s.split(" ");return new Date(+y,MN.indexOf(m),+d)};
+function socOf(id){return societies.find(s=>s.id==id)}
+const socName=id=>socOf(id).name,memOf=id=>members.find(m=>m.id==id);
+const upiId=id=>socName(id).toLowerCase().replace(/[^a-z]/g,"")+"@upi";
+const stat=(l,v)=>`<div class="stat"><span>${l}</span><b>${v}</b></div>`;
+const ICONS={home:"M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z",users:"M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21a8 8 0 0 1 16 0",user:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",receipt:"M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6",wallet:"M4 7h15a1 1 0 0 1 1 1v11H5a1 1 0 0 1-1-1zM4 7l12-3v3M16 13h2",chart:"M4 20V10M10 20V4M16 20v-8M22 20H2",bell:"M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7zM10 20a2 2 0 0 0 4 0",sliders:"M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0",sync:"M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5",list:"M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",file:"M7 3h7l5 5v13H7zM14 3v5h5",grid:"M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",card:"M3 6h18v12H3zM3 10h18",back:"M15 6l-6 6 6 6"};
+const ic=n=>`<svg viewBox="0 0 24 24"><path d="${ICONS[n]}"/></svg>`;
+function toast(t){const e=document.createElement("div");e.className="toast";e.setAttribute("role","status");e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),3200)}
+const log=(s,t)=>audit.push({soc:s,by:me.name,t:today(),txt:t});
+function openDlg(h,wide){const d=$("#dlg");d.className=wide?"wide":"";d.innerHTML=h;if(!d.open)d.showModal()}
+const closeDlg=()=>$("#dlg").close();
+function printDlg(){document.body.classList.add("pd");window.print()}
+window.addEventListener("afterprint",()=>document.body.classList.remove("pd"));
+function csv(name,rows){const t=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/csv"}));a.download=name;a.click();toast(name+" downloaded")}
+/* access rules: every data read goes through these guards */
+const canSoc=s=>me&&(me.role=="super"||me.soc==s),can=(s,m)=>canSoc(s)&&(me.role!="member"||me.mem==m);
+const canWrite=()=>me.role=="super"||me.role=="treasurer",canNotice=()=>me.role!="member";
+const memList=s=>members.filter(m=>can(s,m.id)&&m.soc==s);
+const billsOf=id=>{const m=memOf(id);return can(m.soc,id)?bills.filter(b=>b.mem==id):[]};
+const paysOf=s=>pays.filter(p=>p.soc==s&&can(s,p.mem));
+const expsOf=s=>me.role!="member"&&canSoc(s)?exps.filter(e=>e.soc==s):[];
+const logOf=s=>me.role!="member"&&canSoc(s)?audit.filter(a=>a.soc==s):[];
+const paid=(m,mo)=>pays.find(p=>p.mem==m&&p.mo==mo);
+const pending=s=>pays.filter(p=>(!s||p.soc==s)&&!p.tally&&canSoc(p.soc));
+/* calculations */
+function dues(m){const l=billsOf(m.id).filter(b=>!paid(m.id,b.mo)),pr=l.reduce((a,b)=>a+b.amt,0),it=l.reduce((a,b)=>a+intOf(m,b),0);return{l,pr,it,t:pr+it}}
+function socStats(id){const ms=memList(id),ids=new Set(ms.map(m=>m.id));const b=bills.filter(x=>ids.has(x.mem)).reduce((a,x)=>a+x.amt,0),c=paysOf(id).reduce((a,x)=>a+x.amt,0),e=expsOf(id).reduce((a,x)=>a+x.amt,0),it=ms.reduce((a,m)=>a+dues(m).it,0);return{n:ms.length,b,c,d:b-c,e,it}}
+const topDef=(ms,n)=>ms.map(m=>({m,d:dues(m)})).filter(x=>x.d.t>0).sort((a,b)=>b.d.t-a.d.t).slice(0,n);
+function monthly(ms){const ids=new Set(ms.map(m=>m.id));return ALLM.map(mo=>{const bl=bills.filter(b=>ids.has(b.mem)&&b.mo==mo);if(!bl.length)return null;return{mo,b:bl.reduce((a,x)=>a+x.amt,0),c:bl.filter(x=>paid(x.mem,mo)).reduce((a,x)=>a+x.amt,0)}}).filter(Boolean)}
+const groupExp=s=>{const g={};expsOf(s).forEach(e=>g[e.d]=(g[e.d]||0)+e.amt);return Object.entries(g).map(([l,v])=>({l,v})).sort((a,b)=>b.v-a.v)};
+const latest=s=>{const ids=memList(s).map(m=>m.id);return bills.filter(b=>ids.includes(b.mem)&&ALLM.includes(b.mo)).reduce((a,b)=>Math.max(a,ALLM.indexOf(b.mo)),0)};
+const syncTag=s=>{const n=exc.filter(e=>e.soc==s).length;return n?`<span class="tag warn">${n} to review</span>`:`<span class="tag ok">Up to date</span>`};
+/* chart pieces */
+const COL=["#0f7c74","#e39a1b","#3d6fb6","#a45ea8","#6b8f3a","#c8553d"];
+const hbar=rows=>{const mx=Math.max(1,...rows.map(r=>r.v));return rows.map(r=>`<div class="hbr" ${r.on?`onclick="${r.on}"`:""}><span class="hl">${esc(r.l)}</span><span class="ht"><i style="width:${r.v/mx*100}%"></i></span><span class="hv">${r.t}</span></div>`).join("")};
+const cols=r=>{if(!r.length)return `<div class="empty">No bills yet.</div>`;const mx=Math.max(1,...r.map(x=>x.b));return `<div class="cols">${r.map(x=>`<div class="col"><div class="cb"><i class="b1" style="height:${x.b/mx*100}%" title="Billed ${inr(x.b)}"></i><i class="b2" style="height:${x.c/mx*100}%" title="Collected ${inr(x.c)}"></i></div><span>${x.mo.slice(0,3)}</span><small>${x.b?Math.round(x.c/x.b*100):0}%</small></div>`).join("")}</div><div class="lg"><i class="b1"></i>Billed<i class="b2"></i>Collected</div>`};
+const donut=rows=>{const tot=rows.reduce((a,r)=>a+r.v,0);if(!tot)return `<div class="empty">No expenses recorded.</div>`;let acc=0;const seg=rows.map((r,i)=>{const a=acc/tot*100;acc+=r.v;return `${COL[i%6]} ${a}% ${acc/tot*100}%`}).join(",");return `<div class="dn"><div class="ring" style="background:conic-gradient(${seg})"><span>${inr(tot)}</span></div><ul>${rows.map((r,i)=>`<li><i style="background:${COL[i%6]}"></i>${esc(r.l)}<b>${inr(r.v)}</b></li>`).join("")}</ul></div>`};
+function qr(seed){let s=seed*9301+49297,c="";const n=21,f=(x,y)=>(x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13);for(let y=0;y<n;y++)for(let x=0;x<n;x++){let on;if(f(x,y)){const ax=x>13?x-14:x,ay=y>13?y-14:y;on=ax==0||ax==6||ay==0||ay==6||(ax>=2&&ax<=4&&ay>=2&&ay<=4)}else{s=(s*16807)%2147483647;on=s%3==0}if(on)c+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}return `<svg viewBox="-1 -1 23 23" width="150" height="150" style="background:#fff;border-radius:8px" aria-label="Sample UPI QR code"><g fill="#111">${c}</g></svg>`}
+
+/* ================================================================
+   4. LOGIN, SHELL, NAVIGATION
+   ================================================================ */
+const render=()=>{$("#app").innerHTML=me?shell():loginView();afterRender()};
+function afterRender(){if($("#pv"))prevCalc();const c=$("#con");if(c)c.scrollTop=c.scrollHeight}
+function loginAs(u){me=u;st={soc:u.role=="super"?null:u.soc,tab:u.role=="member"?"home":u.role=="super"?"port":"ov",q:"",f:"all",rep:"ie",ch:"WhatsApp",sm:"all"};render();window.scrollTo(0,0)}
+function login(){const v=$("#u").value.trim().toLowerCase();let u=users.find(x=>x.u==v);
+  if(!u&&/^\d{10}$/.test(v)){const m=members.find(x=>x.phone==v);if(m)u=users.find(x=>x.mem==m.id)}
+  if(!u||$("#p").value!="demo123"){$("#err").textContent="Member ID, mobile number or password is incorrect.";return}loginAs(u)}
+const demo=u=>{$("#u").value=u;$("#p").value="demo123"},logout=()=>{me=null;render()},switchTo=u=>loginAs(users.find(x=>x.u==u));
+document.addEventListener("keydown",e=>{if(e.key=="Enter"&&!me&&$("#u"))login()});
+$("#dlg").addEventListener("close",()=>{if(me)render()});
+const go=t=>{st.tab=t;st.q="";render();window.scrollTo(0,0)};
+const goSoc=v=>{st.soc=v?+v:null;st.tab=st.soc?"ov":"port";render();window.scrollTo(0,0)};
+function loginView(){const c=[["vara","VARA Enterprises"],["treasurer1","Treasurer"],["secretary1","Secretary"],["member101","Member"],["treasurer2","Another society"]];
+  return `<div class="lg-wrap"><section class="lg-l"><div class="brand" style="padding:0"><div class="mark">V</div><div><b>VARA Enterprises</b><span>Society accounting, Thane</span></div></div><h1>Your society's accounts, straight from the Tally books.</h1><ul><li>One login for every treasurer, secretary and member. Everyone sees only what belongs to them.</li><li>Reads Tally 7.1 and never changes it.</li><li>Bills, receipts and payment reminders in a few clicks.</li></ul></section>
+  <section class="lg-r"><div class="card" style="margin:0"><h2>Sign in</h2><br><label>Member ID or mobile number<input id="u" autocomplete="username"></label><label>Password<input id="p" type="password" autocomplete="current-password"></label><div id="err" class="err" role="alert"></div><button class="btn" onclick="login()">Sign in</button></div><p class="mute sm">Demo accounts. The password for all of them is demo123.</p><div class="chips">${c.map(x=>`<button onclick="demo('${x[0]}')">${x[1]}</button>`).join("")}</div></section></div>`}
+function demoBar(){const P=[["vara","VARA Enterprises (super user)"],["treasurer1","Treasurer, Sai Krupa CHS"],["secretary1","Secretary, Sai Krupa CHS"],["member101","Member, Sai Krupa CHS"],["treasurer2","Treasurer, Shree Ganesh CHS"]];
+  return `<div class="demo"><b>Demo</b><span>Sample data. Nothing is saved.</span><span class="sp"></span><label>View as <select onchange="switchTo(this.value)">${P.map(p=>`<option value="${p[0]}" ${me.u==p[0]?"selected":""}>${p[1]}</option>`).join("")}${P.some(p=>p[0]==me.u)?"":`<option value="${me.u}" selected>${esc(me.name)}</option>`}</select></label><button onclick="accessTest()">Test access control</button><button onclick="location.reload()">Reset demo</button></div>`}
+function navItems(){
+  if(me.role=="member")return [["home","Home","home"],["acct","My account","file"],["pay","Make payment","card"],["hist","Receipts","receipt"],["stmt","Statements","list"],["not","Notices","bell"],["prof","Profile","user"]];
+  if(!st.soc)return [["port","All societies","grid"],["sync","Tally sync","sync"]];
+  return [["ov","Overview","grid"],["mem","Members and dues","users"],["rec","Receipts","receipt"],["exp","Expenses","wallet"],["rep","Reports","chart"],["not","Notices","bell"],["rate","Bye-law rates","sliders"],["sync","Tally sync","sync"],["log","Activity","list"]]}
+function shell(){return `${demoBar()}<div class="app"><aside class="side"><div class="brand"><div class="mark">V</div><div><b>VARA Enterprises</b><span>Society accounts</span></div></div>${me.role=="super"&&st.soc?`<button class="nv" onclick="goSoc('')">${ic("back")}All societies</button>`:""}${navItems().map(n=>`<button class="nv ${st.tab==n[0]?"on":""}" onclick="go('${n[0]}')">${ic(n[2])}${n[1]}</button>`).join("")}<div class="su"><b>${esc(me.name)}</b>${ROLE[me.role]}<br><button onclick="logout()">Sign out</button></div></aside><main class="main">${page()}</main></div>`}
+function page(){const t=st.tab;
+  if(me.role=="member")return ({home:mHome,acct:mAcct,pay:mPay,hist:mHist,stmt:mStmt,not:noticesView,prof:mProf}[t]||mHome)();
+  if(!st.soc)return t=="sync"?syncView(null):portfolio();
+  return ({ov:overview,mem:membersView,rec:receiptsView,exp:expensesView,rep:reportsView,not:noticesView,rate:ratesView,sync:()=>syncView(st.soc),log:logView}[t]||overview)()}
+function head(t,sub,extra=""){const sc=me.role=="super"?(st.soc?socName(st.soc):"All 10 societies"):me.role=="member"?"Own account only":socName(me.soc)+" only";
+  const sw=me.role=="super"?`<select class="swsoc noprint" onchange="goSoc(this.value)" aria-label="Society"><option value="">All societies</option>${societies.map(s=>`<option value="${s.id}" ${st.soc==s.id?"selected":""}>${esc(s.name)}</option>`).join("")}</select>`:"";
+  return `<div class="ph"><div><h1>${esc(t)}</h1><p class="mute">${esc(sub)}</p></div><div class="ph-r">${extra}${sw}<span class="chip">${esc(sc)}</span></div></div>`}
+/* proves that data is segregated: tries to open someone else's data and shows what comes back */
+function accessTest(){if(me.role=="super"){toast("VARA is the super user, so it can open every society by design.");return}
+  const other=me.role=="member"?members.find(m=>m.soc==me.soc&&m.id!=me.mem):members.find(m=>m.soc!=me.soc);
+  const got=me.role=="member"?billsOf(other.id).length:memList(other.soc).length;
+  log(other.soc,`Blocked: ${me.name} tried to open ${me.role=="member"?"another member's account":"this society"}`);
+  toast(`Blocked. ${got} records returned for ${me.role=="member"?"another member's account":socName(other.soc)}.`)}
+
+/* ================================================================
+   5. VARA SUPER USER: PORTFOLIO
+   ================================================================ */
+function portfolio(){const rows=societies.map(s=>({s,k:socStats(s.id)})),T=rows.reduce((a,{k})=>{for(const x in a)a[x]+=k[x];return a},{n:0,b:0,c:0,d:0,e:0,it:0});
+  const td=topDef(members.filter(m=>can(m.soc,m.id)),6),pc=k=>k.b?Math.round(k.c/k.b*100):0;
+  return head("All societies","Portfolio view of every society VARA manages")+`<div class="stats">${stat("Members",T.n)}${stat("Billed",inr(T.b))}${stat("Collected",inr(T.c))}${stat("Outstanding",inr(T.d))}${stat("Interest accrued",inr(T.it))}${stat("Expenses",inr(T.e))}</div>
+  <div class="g2"><div class="card"><h2>Collection by society</h2>${hbar(rows.slice().sort((a,b)=>pc(b.k)-pc(a.k)).map(({s,k})=>({l:s.name,v:pc(k),t:pc(k)+"%",on:`goSoc(${s.id})`})))}</div>
+  <div class="card"><h2>Highest dues across societies</h2>${td.map(x=>`<div class="li"><div><b>${esc(x.m.name)}</b><small>${esc(socName(x.m.soc))}, flat ${x.m.flat}</small></div><b class="bad">${inr(x.d.t)}</b></div>`).join("")}</div></div>
+  <div class="card"><div class="row-b"><h2>Tally books</h2><button class="ghost" onclick="go('sync')">Open Tally sync</button></div><div class="chips">${societies.map(s=>`<span class="tag ${exc.some(e=>e.soc==s.id)?"warn":"ok"}" title="Last synced ${sync[s.id].at}">${esc(s.name)}</span>`).join("")}</div><p class="mute sm" style="margin-top:10px">${pending(null).length} receipts created in this app are waiting for their Tally voucher.</p></div>
+  <div class="tw"><table><tr><th>Society</th><th class="r">Members</th><th class="r">Billed</th><th class="r">Collected</th><th class="r">Outstanding</th><th class="r">Expenses</th><th>Last Tally sync</th></tr>${rows.map(({s,k})=>`<tr class="click" onclick="goSoc(${s.id})"><td>${esc(s.name)}</td><td class="r">${k.n}</td><td class="r">${inr(k.b)}</td><td class="r">${inr(k.c)}</td><td class="r">${inr(k.d)}</td><td class="r">${inr(k.e)}</td><td>${sync[s.id].at}</td></tr>`).join("")}</table></div><p class="mute sm">Select a society to open its members, receipts and reports.</p>`}
+
+/* ================================================================
+   6. COMMITTEE VIEWS (Treasurer, Secretary, and VARA inside a society)
+   ================================================================ */
+function overview(){const s=st.soc,k=socStats(s),ms=memList(s),td=topDef(ms,5),ag=notices.filter(n=>n.soc==s&&n.type=="AGM").slice(-1)[0];
+  return head(socName(s),"Overview of this society's accounts")+`<div class="stats">${stat("Members",k.n)}${stat("Billed",inr(k.b))}${stat("Collected",inr(k.c))}${stat("Outstanding",inr(k.d))}${stat("Interest accrued",inr(k.it))}${stat("Expenses",inr(k.e))}</div>
+  <div class="g2"><div class="card"><h2>Collection by month</h2>${cols(monthly(ms))}</div><div class="card"><h2>Where the money goes</h2>${donut(groupExp(s))}</div></div>
+  <div class="g2"><div class="card"><div class="row-b"><h2>Highest dues</h2>${canNotice()&&td.length?`<button class="ghost" onclick="remDlg()">Send reminders</button>`:""}</div>${td.length?td.map(x=>`<div class="li"><div><b>${esc(x.m.name)}</b><small>Flat ${x.m.flat}, ${x.d.l.length} bill${x.d.l.length>1?"s":""} pending</small></div><b class="bad">${inr(x.d.t)}</b></div>`).join(""):`<p class="mute">Every member is paid up.</p>`}</div>
+  <div class="card"><div class="row-b"><h2>Tally books</h2>${syncTag(s)}</div><p>Last synced ${sync[s].at}</p><p class="mute sm" style="margin:6px 0 14px">${pending(s).length} receipts created here are waiting for their Tally voucher.</p><button class="btn" onclick="go('sync')">Open Tally sync</button></div></div>
+  ${ag?`<div class="card"><div class="row-b"><h2>${esc(ag.title)}</h2><span class="tag ok">${ag.rsvp.length} of ${k.n} members confirmed</span></div><p class="mute">${esc(ag.body)}</p></div>`:""}`}
+
+function actions(){if(!canWrite())return "";const n=ALLM[latest(st.soc)+1];return `<div class="row" style="margin-bottom:12px">${n?`<button class="btn" onclick="genBills()">Generate ${n} bills</button>`:""}${canNotice()?`<button class="ghost" onclick="remDlg()">Send reminders</button>`:""}</div>${st.msg&&st.ms==st.soc?`<div class="note" role="status">${esc(st.msg)}</div>`:""}`}
+function membersTable(){const q=(st.q||"").toLowerCase(),rows=memList(st.soc).filter(m=>(m.name+" "+m.flat).toLowerCase().includes(q)).map(m=>({m,d:dues(m),bl:billsOf(m.id)})).filter(x=>st.f=="all"||x.d.t>0);
+  return `<div class="tw"><table><tr><th>Member</th><th>Flat</th><th class="r">Monthly charges</th><th class="r">Bills paid</th><th class="r">Principal due</th><th class="r">Interest</th><th></th></tr>${rows.map(({m,d,bl})=>`<tr><td>${esc(m.name)}${m.let?` <span class="mute sm">(let out)</span>`:""}</td><td>${m.flat}</td><td class="r">${inr(m.fee)}</td><td class="r">${bl.length-d.l.length}/${bl.length}</td><td class="r">${d.pr?`<span class="tag bad">${inr(d.pr)}</span>`:`<span class="tag ok">Clear</span>`}</td><td class="r">${d.it?inr(d.it):"-"}</td><td class="r"><button class="ghost" onclick="stmtDlg(${m.id})">Statement</button> ${d.pr&&canWrite()?`<button class="btn sm" onclick="payDlg(${m.id})">Record payment</button>`:""}</td></tr>`).join("")||`<tr><td colspan="7" class="empty">No members match.</td></tr>`}</table></div>`}
+function membersView(){return head("Members and dues","Charges, dues and interest for every flat")+actions()+`<div class="row" style="margin-bottom:12px"><label style="max-width:280px;margin:0"><span class="sm mute">Search by name or flat</span><input value="${esc(st.q||"")}" oninput="st.q=this.value;$('#mt').innerHTML=membersTable()"></label><div class="chips" style="padding-bottom:2px"><button class="ghost" ${st.f=="all"?'style="border-color:var(--teal)"':""} onclick="st.f='all';render()">All members</button><button class="ghost" ${st.f=="due"?'style="border-color:var(--teal)"':""} onclick="st.f='due';render()">With dues</button></div></div><div id="mt">${membersTable()}</div>${canWrite()?"":`<p class="mute sm">Secretary access is view only for money. The Treasurer records payments and expenses.</p>`}`}
+function receiptsView(){const r=paysOf(st.soc).slice().sort((a,b)=>b.id-a.id);
+  const ex=r.length?`<button class="ghost noprint" onclick="exportReceipts()">Export CSV</button>`:"";
+  return head("Receipts","Every receipt, with its Tally voucher status",ex)+(r.length?`<div class="tw"><table><tr><th>Receipt</th><th>Member</th><th>For</th><th>Mode</th><th>Date</th><th class="r">Amount</th><th>Tally</th><th></th></tr>${r.map(p=>`<tr><td>R-${1000+p.id}</td><td>${esc(memOf(p.mem).name)}</td><td>${p.mo}</td><td>${p.mode}</td><td>${p.date}</td><td class="r">${inr(p.amt+(p.int||0))}</td><td>${tallyTag(p)}</td><td><button class="ghost" onclick="showReceipt(${p.id})">View</button></td></tr>`).join("")}</table></div>`:`<div class="empty">No receipts yet.</div>`)}
+const tallyTag=p=>p.tally?`<span class="tag ok">In Tally ${p.vch}</span>`:`<span class="tag warn">Awaiting Tally</span>`;
+function exportReceipts(){csv("receipts-"+socName(st.soc).replace(/ /g,"-")+".csv",[["Receipt","Member","Flat","For","Mode","Date","Amount","Interest","Tally voucher"]].concat(paysOf(st.soc).map(p=>["R-"+(1000+p.id),memOf(p.mem).name,memOf(p.mem).flat,p.mo,p.mode,p.date,p.amt,p.int||0,p.tally?p.vch:"Awaiting"])))}
+function expensesView(){const s=st.soc,e=expsOf(s);
+  return head("Expenses","What the society spent and on what")+`<div class="g2"><div class="card"><h2>Spend by head</h2>${donut(groupExp(s))}</div>${canWrite()?`<div class="card"><h2>Add an expense</h2><div class="row"><label>Description<input id="ed" placeholder="For example, lift repair"></label><label>Amount in rupees<input id="ea" type="number" min="1"></label></div><div id="err" class="err" role="alert"></div><button class="btn" onclick="addExp()">Add expense</button></div>`:""}</div>
+  <div class="tw"><table><tr><th>Expense</th><th>Date</th><th class="r">Amount</th></tr>${e.map(x=>`<tr><td>${esc(x.d)}</td><td>${x.date}</td><td class="r">${inr(x.amt)}</td></tr>`).join("")||`<tr><td colspan="3" class="empty">No expenses recorded.</td></tr>`}</table></div>`}
+function addExp(){if(!canWrite())return;const d=$("#ed").value.trim(),a=Math.round(+$("#ea").value);if(!d||!(a>0)){$("#err").textContent="Enter a description and an amount above zero.";return}exps.push({soc:st.soc,d,amt:a,date:today()});log(st.soc,`Expense added: ${d} (${inr(a)})`);render()}
+function genBills(){if(!canWrite())return;const s=st.soc,n=ALLM[latest(s)+1];if(!n)return;const ms=memList(s);ms.forEach(m=>{m.fee=chg(m).t;bills.push({mem:m.id,mo:n,amt:m.fee})});log(s,`Generated ${n} bills for ${ms.length} members`);st.msg=`${n} bills generated for ${ms.length} members. They are due on ${socOf(s).cfg.due} ${n.split(" ")[0]}.`;st.ms=s;render()}
+/* record a payment received by the Treasurer */
+function payDlg(id){const m=memOf(id),u=dues(m).l;openDlg(`<h2>Record payment</h2><p class="mute">${esc(m.name)}, flat ${m.flat}</p><br><label>Month<select id="pm">${u.map(b=>`<option value="${b.mo}">${b.mo}: ${inr(b.amt)} + interest ${inr(intOf(m,b))}</option>`).join("")}</select></label><label>Mode<select id="pmode">${MODES.map(x=>`<option>${x}</option>`).join("")}</select></label><div class="row"><button class="btn" onclick="savePay(${id})">Save receipt</button><button class="ghost" onclick="closeDlg()">Cancel</button></div>`)}
+function savePay(id){if(!canWrite())return;const m=memOf(id),mo=$("#pm").value,b=bills.find(x=>x.mem==id&&x.mo==mo),p={id:pid++,mem:id,soc:m.soc,mo,amt:b.amt,int:intOf(m,b),date:today(),mode:$("#pmode").value,src:"Manual",tally:false};pays.push(p);log(m.soc,`Receipt R-${1000+p.id} recorded for ${m.name} (${mo}, ${inr(p.amt)} plus interest ${inr(p.int)})`);closeDlg();toast(`Receipt R-${1000+p.id} saved. It will be matched with Tally on the next sync.`)}
+function showReceipt(id){const p=pays.find(x=>x.id==id);if(!p||!can(p.soc,p.mem))return;const m=memOf(p.mem);
+  openDlg(`<h2>Receipt R-${1000+p.id}</h2><p class="mute">${esc(socName(p.soc))}</p><br><div class="sum"><div><span>Received from</span><b>${esc(m.name)}, flat ${m.flat}</b></div><div><span>For</span><b>${p.mo}</b></div><div><span>Mode</span><b>${p.mode}</b></div><div><span>Date</span><b>${p.date}</b></div><div><span>Charges</span><b>${inr(p.amt)}</b></div><div><span>Interest</span><b>${inr(p.int||0)}</b></div><div class="tot"><span>Total received</span><b>${inr(p.amt+(p.int||0))}</b></div></div><p class="mute sm" style="margin-top:8px">${p.tally?"Posted in Tally as voucher "+p.vch:"Waiting for its voucher to be posted in Tally"}</p><div class="row" style="margin-top:14px"><button class="btn" onclick="printDlg()">Print or save as PDF</button><button class="ghost" onclick="closeDlg()">Close</button></div>`)}
+/* statements */
+function stmtRows(m,mo){const e=[];billsOf(m.id).forEach(b=>{const [mm,y]=b.mo.split(" ");e.push({ts:new Date(+y,MN.indexOf(mm),1),d:"01 "+b.mo,t:"Maintenance bill "+b.mo,dr:b.amt,cr:0})});
+  pays.filter(p=>p.mem==m.id&&can(p.soc,p.mem)).forEach(p=>{const ts=pd(p.date);if(p.int)e.push({ts,d:p.date,t:`Interest on arrears (${p.mo})`,dr:p.int,cr:0});e.push({ts,d:p.date,t:`Receipt R-${1000+p.id} by ${p.mode} for ${p.mo}`,dr:0,cr:p.amt+(p.int||0)})});
+  const du=dues(m);if(du.it)e.push({ts:NOW,d:today(),t:"Interest accrued on unpaid bills till today",dr:du.it,cr:0});
+  e.sort((a,b)=>a.ts-b.ts||(b.dr>0)-(a.dr>0));let bal=0;e.forEach(x=>{bal+=x.dr-x.cr;x.bal=bal});return !mo||mo=="all"?e:e.filter(x=>x.d.slice(3)==mo)}
+function stmtTable(m,mo){const r=stmtRows(m,mo),close=dues(m).t;
+  return `<h2>Statement of account</h2><p class="mute">${esc(socName(m.soc))}, ${esc(m.name)}, flat ${m.flat}. Printed on ${today()}</p><br><div class="tw" style="margin:0"><table style="min-width:480px"><tr><th>Date</th><th>Particulars</th><th class="r">Debit</th><th class="r">Credit</th><th class="r">Balance</th></tr>${r.map(x=>`<tr><td>${x.d}</td><td>${esc(x.t)}</td><td class="r">${x.dr?inr(x.dr):""}</td><td class="r">${x.cr?inr(x.cr):""}</td><td class="r">${inr(x.bal)}</td></tr>`).join("")||`<tr><td colspan="5" class="empty">No entries for this month.</td></tr>`}<tr><td colspan="4" class="b">Amount payable today</td><td class="r b">${inr(close)}</td></tr></table></div>`}
+function stmtDlg(id){const m=memOf(id);if(!can(m.soc,id))return;openDlg(stmtTable(m)+`<div class="row" style="margin-top:14px"><button class="btn" onclick="printDlg()">Print or save as PDF</button><button class="ghost" onclick="closeDlg()">Close</button></div>`,true)}
+/* reminders */
+const remMsg=m=>{const d=dues(m);return `Dear ${m.name.split(" ")[0]}, your maintenance for ${d.l.map(b=>b.mo).join(", ")} is pending at ${socName(m.soc)}.\nCharges ${inr(d.pr)} + interest ${inr(d.it)} = ${inr(d.t)}.\nPay by UPI to ${upiId(m.soc)} or at the society office. Please ignore this if you have already paid.\nThank you, Managing Committee`};
+const remList=()=>memList(st.soc).filter(m=>dues(m).t>0);
+function remBody(){const l=remList();if(!l.length)return `<h2>Send reminders</h2><p class="mute">Every member is paid up. There is nobody to remind.</p><div class="row" style="margin-top:14px"><button class="ghost" onclick="closeDlg()">Close</button></div>`;
+  return `<h2>Send reminders</h2><p class="mute">${l.length} member${l.length>1?"s have":" has"} dues.</p><div class="tabs sm" style="margin-top:10px">${["WhatsApp","SMS","Email"].map(c=>`<button class="${st.ch==c?"on":""}" onclick="st.ch='${c}';$('#dlg').innerHTML=remBody()">${c}</button>`).join("")}</div>${st.ch=="Email"?`<p class="sm mute">Subject: Maintenance reminder from ${esc(socName(st.soc))}</p>`:""}<div class="wa">${esc(remMsg(l[0]))}</div><p class="mute sm">Preview for ${esc(l[0].name)}. Each member gets their own amounts.</p><div class="row" style="margin-top:14px"><button class="btn" onclick="sendRem()">Send to ${l.length} member${l.length>1?"s":""}</button><button class="ghost" onclick="closeDlg()">Cancel</button></div><p class="mute sm" style="margin-top:8px">Demo only. No message is sent.</p>`}
+const remDlg=()=>{if(canNotice())openDlg(remBody(),true)};
+function sendRem(){if(!canNotice())return;const n=remList().length;log(st.soc,`Reminder sent to ${n} members by ${st.ch}`);closeDlg();toast(`Reminders queued for ${n} members by ${st.ch}.`)}
+
+/* ================================================================
+   7. REPORTS
+   ================================================================ */
+function reportsView(){const s=st.soc,sub=st.rep,k=socStats(s),ps=paysOf(s),intRec=ps.reduce((a,p)=>a+(p.int||0),0),ge=groupExp(s),te=ge.reduce((a,x)=>a+x.v,0),ti=k.c+intRec,ms=memList(s);
+  const T=[["ie","Income and expenditure"],["def","Defaulters"],["col","Collection by month"]];let body="",extra="";
+  if(sub=="ie")body=`<div class="card"><h2>Income and expenditure</h2><p class="mute sm">1 Jul 2026 to ${today()}, ${esc(socName(s))}</p><div class="tw" style="margin:12px 0 0"><table style="min-width:420px"><tr><th>Income</th><th class="r">Amount</th></tr><tr><td>Maintenance charges collected</td><td class="r">${inr(k.c)}</td></tr><tr><td>Interest on arrears recovered</td><td class="r">${inr(intRec)}</td></tr><tr><td class="b">Total income</td><td class="r b">${inr(ti)}</td></tr><tr><th>Expenditure</th><th></th></tr>${ge.map(x=>`<tr><td>${esc(x.l)}</td><td class="r">${inr(x.v)}</td></tr>`).join("")}<tr><td class="b">Total expenditure</td><td class="r b">${inr(te)}</td></tr><tr><td class="b">${ti>=te?"Surplus":"Deficit"} for the period</td><td class="r b ${ti>=te?"ok":"bad"}">${inr(Math.abs(ti-te))}</td></tr></table></div></div>`;
+  if(sub=="def"){const l=topDef(ms,99);extra=l.length?`<button class="ghost noprint" onclick="exportDef()">Export CSV</button>`:"";body=l.length?`<div class="tw"><table><tr><th>Member</th><th>Flat</th><th>Months pending</th><th class="r">Principal</th><th class="r">Interest</th><th class="r">Total</th></tr>${l.map(x=>`<tr><td>${esc(x.m.name)}</td><td>${x.m.flat}</td><td>${x.d.l.map(b=>b.mo.slice(0,3)).join(", ")}</td><td class="r">${inr(x.d.pr)}</td><td class="r">${inr(x.d.it)}</td><td class="r b">${inr(x.d.t)}</td></tr>`).join("")}</table></div>`:`<div class="empty">No defaulters. Every member is paid up.</div>`}
+  if(sub=="col"){const r=monthly(ms);body=`<div class="card"><h2>Collection by month</h2>${cols(r)}</div><div class="tw"><table><tr><th>Month</th><th class="r">Billed</th><th class="r">Collected</th><th class="r">Outstanding</th><th class="r">Collected %</th></tr>${r.map(x=>`<tr><td>${x.mo}</td><td class="r">${inr(x.b)}</td><td class="r">${inr(x.c)}</td><td class="r">${inr(x.b-x.c)}</td><td class="r">${x.b?Math.round(x.c/x.b*100):0}%</td></tr>`).join("")}</table></div>`}
+  return head("Reports","Ready for the committee and the AGM",`${extra}<button class="ghost noprint" onclick="window.print()">Print</button>`)+`<div class="tabs noprint">${T.map(t=>`<button class="${sub==t[0]?"on":""}" onclick="st.rep='${t[0]}';render()">${t[1]}</button>`).join("")}</div>${body}`}
+function exportDef(){csv("defaulters-"+socName(st.soc).replace(/ /g,"-")+".csv",[["Member","Flat","Months pending","Principal","Interest","Total"]].concat(topDef(memList(st.soc),99).map(x=>[x.m.name,x.m.flat,x.d.l.map(b=>b.mo).join(" "),x.d.pr,x.d.it,x.d.t])))}
+
+/* ================================================================
+   8. NOTICES AND AGM  (committee posts, members read and confirm)
+   ================================================================ */
+function noticesView(){const s=me.role=="member"?me.soc:st.soc,l=notices.filter(n=>n.soc==s&&canSoc(s)).slice().reverse(),n0=socStats(s).n;
+  return head("Notices and AGM",me.role=="member"?"Updates from your society":"Post updates and see who is attending the AGM")+
+  (canNotice()?`<div class="card"><h2>Post a notice</h2><div class="row"><label style="max-width:160px">Type<select id="nt"><option>Notice</option><option>AGM</option></select></label><label>Title<input id="nh"></label></div><label>Message<textarea id="nb" rows="3"></textarea></label><div id="err" class="err" role="alert"></div><button class="btn" onclick="postNotice()">Post notice</button></div>`:"")+
+  `<div class="card">${l.map(n=>`<div class="notice"><div class="row-b" style="margin:0"><h3>${esc(n.title)}</h3><span class="tag ${n.type=="AGM"?"warn":"ok"}">${n.type}</span></div><p class="mute sm">${n.date}</p><p>${esc(n.body)}</p>${n.type=="AGM"?(me.role=="member"?`<button class="${n.rsvp.includes(me.mem)?"btn":"ghost"} sm" onclick="rsvp(${n.id})">${n.rsvp.includes(me.mem)?"You are attending. Tap to cancel":"I will attend"}</button> <span class="mute sm">${n.rsvp.length} of ${n0} confirmed</span>`:`<span class="tag ok">${n.rsvp.length} of ${n0} members confirmed</span>`):""}</div>`).join("")||`<div class="empty">No notices yet.</div>`}</div>`}
+function postNotice(){if(!canNotice())return;const h=$("#nh").value.trim(),b=$("#nb").value.trim(),t=$("#nt").value;if(!h||!b){$("#err").textContent="Enter a title and a message.";return}notices.push({id:++nid,soc:st.soc,type:t,title:h,body:b,date:today(),rsvp:t=="AGM"?[]:undefined});log(st.soc,`${t} posted: ${h}`);toast("Notice posted. Members can see it now.");render()}
+function rsvp(id){const n=notices.find(x=>x.id==id);if(!n||me.role!="member"||!canSoc(n.soc))return;const i=n.rsvp.indexOf(me.mem);i<0?n.rsvp.push(me.mem):n.rsvp.splice(i,1);render()}
+
+/* ================================================================
+   9. BYE-LAW RATES with live bill preview
+   ================================================================ */
+const CF=[["svc","Service charge per flat, rupees per month (equal for all flats)"],["int","Interest on arrears, % per year, simple (maximum 21)"],["due","Due day of the month (1 to 28)"],["nonocc","Non-occupancy charge, % of service charge (maximum 10)"],["sink","Sinking fund, % of construction cost per year"],["rep","Repairs and maintenance fund, % of construction cost per year"],["cost","Construction cost, rupees per sq ft"]];
+function ratesView(){const c=socOf(st.soc).cfg,w=canWrite();
+  return head("Bye-law rates","Rates used to build every member's monthly bill")+`<div class="g2"><div class="card">${CF.map(f=>`<label>${f[1]}<input id="cf_${f[0]}" type="number" step="any" value="${c[f[0]]}" oninput="prevCalc()" ${w?"":"disabled"}></label>`).join("")}<div id="err" class="err" role="alert"></div>${w?`<button class="btn" onclick="saveCfg()">Save rates</button>`:`<p class="mute sm">Only the Treasurer can change rates.</p>`}<p class="mute sm" style="margin-top:10px">Changes apply to bills generated afterwards. Interest is simple, runs from the due date until payment, and is never compounded. Keep every rate within your registered bye-laws and general body resolutions.</p></div>
+  <div class="card"><h2>Try a sample flat</h2><div class="row"><label>Area in sq ft<input id="pv_area" type="number" value="650" oninput="prevCalc()"></label><label>Let out<select id="pv_let" onchange="prevCalc()"><option value="0">No</option><option value="1">Yes</option></select></label><label>Parking<select id="pv_park" onchange="prevCalc()"><option value="0">No</option><option value="1">Yes</option></select></label></div><div id="pv" class="sum"></div><div id="chk" class="chips" style="margin-top:12px"></div></div></div>`}
+function prevCalc(){const c={};for(const f of CF)c[f[0]]=+($("#cf_"+f[0])||{}).value;const a=+$("#pv_area").value||0,lt=$("#pv_let").value=="1",pk=$("#pv_park").value=="1"?300:0,sv=c.svc,rp=Math.round(a*c.cost*c.rep/1200),sk=Math.round(a*c.cost*c.sink/1200),no=lt?Math.round(sv*c.nonocc/100):0,t=sv+rp+sk+no+pk;
+  $("#pv").innerHTML=`<div><span>Service charge</span><b>${inr(sv)}</b></div><div><span>Repairs and maintenance fund</span><b>${inr(rp)}</b></div><div><span>Sinking fund</span><b>${inr(sk)}</b></div>${no?`<div><span>Non-occupancy charge</span><b>${inr(no)}</b></div>`:""}${pk?`<div><span>Parking</span><b>${inr(pk)}</b></div>`:""}<div class="tot"><span>Monthly bill</span><b>${inr(t)}</b></div>`;
+  $("#chk").innerHTML=`<span class="tag ${c.int<=21?"ok":"bad"}">Interest ${c.int}% (limit 21%)</span><span class="tag ${c.nonocc<=10?"ok":"bad"}">Non-occupancy ${c.nonocc}% (limit 10%)</span>`}
+function saveCfg(){if(!canWrite())return;const c=socOf(st.soc).cfg,v={};for(const f of CF)v[f[0]]=+$("#cf_"+f[0]).value;
+  if(v.int<0||v.int>21||v.nonocc<0||v.nonocc>10||v.due<1||v.due>28||v.svc<0||v.sink<0||v.rep<0||v.cost<0){$("#err").textContent="Interest can be at most 21%, non-occupancy at most 10% of service charge, and the due day must be 1 to 28.";return}
+  Object.assign(c,v);log(st.soc,"Bye-law rates updated");toast("Rates saved. They apply to bills generated from now on.");render()}
+function logView(){const l=logOf(st.soc).slice().reverse();return head("Activity","Every change and blocked access attempt")+(l.length?`<div class="tw"><table><tr><th>When</th><th>By</th><th>Action</th></tr>${l.map(a=>`<tr><td>${a.t}</td><td>${esc(a.by)}</td><td>${a.txt.startsWith("Blocked")?`<span class="tag bad">Blocked</span> `:""}${esc(a.txt.replace(/^Blocked: /,""))}</td></tr>`).join("")}</table></div>`:`<div class="empty">No changes made in this session yet. Payments, expenses, syncs and blocked access attempts appear here.</div>`)}
+
+/* ================================================================
+   10. TALLY SYNC SCREEN  (the 4 steps from your data-flow diagram)
+   ================================================================ */
+const STEPS=["Connect to Tally 7.1","Fetch required data","Transform and map","Store in app database"],STEP_SUB=["Read-only, ODBC or XML","Members, ledgers, receipts","Match society codes and IDs","Update balances and reports"];
+function panel(){const all=run.step==4;
+  return `<div class="pipe">${STEPS.map((t,i)=>`<div class="ps ${all||run.step>i?"done":run.on&&run.step==i?"act":""}"><b>${i+1}</b><span>${t}</span><small>${STEP_SUB[i]}</small></div>`).join("")}</div>${run.on&&run.n>1?`<p class="mute sm" style="margin-bottom:8px">Society ${run.i+1} of ${run.n}: ${esc(socName(run.soc))}</p>`:""}<div class="con" id="con">${run.log.length?run.log.map(l=>`<div>${esc(l)}</div>`).join(""):`<span style="opacity:.7">Press Sync now to read the latest books from Tally 7.1.</span>`}</div>`}
+function paint(){const e=$("#syncpanel");if(e){e.innerHTML=panel();const c=$("#con");if(c)c.scrollTop=c.scrollHeight}}
+async function runSync(ids){ids=ids.filter(canSoc);if(run.on||!ids.length||!canWrite())return;
+  run={on:true,step:-1,log:[],i:0,n:ids.length,soc:ids[0]};const f=ids.length>1?.45:1,L=t=>{run.log.push(clock()+"  "+t);paint()},S=async i=>{run.step=i;paint();await sleep(500*f)};
+  render();
+  for(let k=0;k<ids.length;k++){const id=ids[k],nm=socName(id);run.i=k;run.soc=id;
+    await S(0);L(`${nm}: connecting to Tally 7.1 (read-only)`);await sleep(350*f);L(`Connected. Company "${nm}", FY 2026-27`);
+    await S(1);const d=Tally.pull(id),hist=pays.filter(p=>p.soc==id).length;L(`Read ${d.ledgers} ledgers (member accounts, bank, expense heads)`);await sleep(350*f);L(`Read ${hist+d.vouchers.length} receipt vouchers, ${d.vouchers.length} new since the last sync`);
+    await S(2);L(`Matched society code and ${members.filter(m=>m.soc==id).length} member IDs`);if(d.exception)L(`Needs review: ledger "${d.exception.ledger}" has no exact member match`);await sleep(350*f);L("Validation passed");
+    await S(3);const r=applyPull(id,d);L(`Stored ${r.n} new receipts, recalculated balances, refreshed reports`);if(r.m)L(`Matched ${r.m} receipts created in this app with their Tally vouchers`);await sleep(300*f);
+    sync[id]={at:today()+", "+clock()};log(id,`Tally sync: ${r.n} new receipts imported, ${r.m} matched, ${d.exception?1:0} to review`)}
+  run.step=4;L("Sync complete");await sleep(400);run.on=false;render();toast("Tally sync complete.")}
+function mapExc(id){const e=exc.find(x=>x.id==id);if(!e||!canWrite()||!canSoc(e.soc))return;exc.splice(exc.indexOf(e),1);log(e.soc,`Mapped Tally ledger "${e.ledger}" to ${memOf(e.mem).name}`);toast("Ledger mapped. It will be used on every future sync.");render()}
+function syncView(s){const ids=(s?[s]:societies.map(x=>x.id)).filter(canSoc),w=canWrite(),ex=exc.filter(e=>ids.includes(e.soc)),pe=pending(s);
+  return head("Tally sync","Reads the Tally 7.1 books. Nothing is ever written back to Tally.")+
+  `<div class="card"><div class="row-b"><h2>Live sync</h2>${w?`<button class="btn" ${run.on?"disabled":""} onclick="runSync([${ids}])">${s?"Sync now":"Sync all "+ids.length+" societies"}</button>`:`<span class="mute sm">Secretary access is view only.</span>`}</div><div id="syncpanel">${panel()}</div></div>
+  <div class="g2"><div><div class="tw" style="margin:0"><table><tr><th>Society</th><th>Last synced</th><th>Status</th><th class="r">Waiting</th><th></th></tr>${ids.map(id=>`<tr><td>${esc(socName(id))}</td><td>${sync[id].at}</td><td>${syncTag(id)}</td><td class="r">${pending(id).length}</td><td class="r">${w?`<button class="ghost" ${run.on?"disabled":""} onclick="runSync([${id}])">Sync</button>`:""}</td></tr>`).join("")}</table></div></div>
+  <div class="card"><h2>Needs review</h2>${ex.length?ex.map(e=>`<div class="li"><div><b>Tally ledger "${esc(e.ledger)}"</b><small>Suggested member: ${esc(memOf(e.mem).name)}, flat ${memOf(e.mem).flat}, ${e.conf}% match</small></div>${w?`<button class="btn sm" onclick="mapExc(${e.id})">Confirm mapping</button>`:""}</div>`).join(""):`<p class="mute">Every Tally ledger is matched to a member.</p>`}</div></div>
+  <div class="card"><h2>Waiting for a Tally voucher</h2><p class="mute sm" style="margin-bottom:10px">Receipts created in this app (online payments and counter receipts). Once the accountant posts them in Tally, the next sync matches them.</p>${pe.length?`<div class="tw" style="margin:0"><table><tr><th>Receipt</th><th>Member</th><th>Society</th><th>Source</th><th class="r">Amount</th></tr>${pe.map(p=>`<tr><td>R-${1000+p.id}</td><td>${esc(memOf(p.mem).name)}</td><td>${esc(socName(p.soc))}</td><td>${p.src}</td><td class="r">${inr(p.amt+(p.int||0))}</td></tr>`).join("")}</table></div>`:`<p class="mute">Nothing is waiting. Every receipt has a matching Tally voucher.</p>`}</div>
+  <details class="card"><summary>How Tally data maps into this app</summary><div class="tw" style="margin:0 0 12px"><table style="min-width:620px"><tr><th>Read from Tally</th><th>Used for</th><th>Matched by</th></tr><tr><td>Company</td><td>Society</td><td>Tally company name to society code</td></tr><tr><td>Ledgers under Sundry Debtors</td><td>Members and their balances</td><td>Flat number in the ledger name</td></tr><tr><td>Receipt vouchers</td><td>Receipts</td><td>Voucher number, date, ledger, bank ledger gives the mode</td></tr><tr><td>Payment vouchers and expense ledgers</td><td>Expenses and reports</td><td>Ledger name</td></tr><tr><td>Opening balances</td><td>Member statements</td><td>Ledger</td></tr></table></div>
+  <p class="mute sm">Sample request the integration service sends to Tally. Illustrative only. We finalise it once we see a real company export.</p><pre>${esc(`POST http://localhost:9000
+<ENVELOPE>
+  <HEADER><VERSION>1</VERSION><TALLYREQUEST>Export</TALLYREQUEST><TYPE>Data</TYPE><ID>Voucher Register</ID></HEADER>
+  <BODY><DESC><STATICVARIABLES>
+    <SVCURRENTCOMPANY>Sai Krupa CHS</SVCURRENTCOMPANY>
+    <SVFROMDATE>20260401</SVFROMDATE><SVTODATE>20260930</SVTODATE>
+    <VOUCHERTYPENAME>Receipt</VOUCHERTYPENAME>
+    <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+  </STATICVARIABLES></DESC></BODY>
+</ENVELOPE>`)}</pre><p class="mute sm">In the code, all of this sits behind one object named Tally. Replace its pull() function with a backend call and no screen changes.</p></details>`}
+
+/* ================================================================
+   11. MEMBER PORTAL  (matches the member flow diagram)
+   ================================================================ */
+function mHome(){const m=memOf(me.mem),d=dues(m),c=chg(m),last=pays.filter(p=>p.mem==m.id).sort((a,b)=>b.id-a.id).slice(0,3),ag=notices.filter(n=>n.soc==m.soc&&n.type=="AGM").slice(-1)[0],parts=[["Service",c.sv],["Repairs fund",c.rp],["Sinking fund",c.sk],["Non-occupancy",c.no],["Parking",c.pk]].filter(x=>x[1]);
+  return head("Hello, "+m.name.split(" ")[0],socName(m.soc)+", flat "+m.flat)+`<div class="g2"><div class="card hero"><p class="mute">Outstanding today</p><div class="big">${inr(d.t)}</div>${d.t?`<p class="mute">Charges ${inr(d.pr)} plus interest ${inr(d.it)} for ${d.l.map(b=>b.mo).join(", ")}</p><br><button class="btn" onclick="payStart()">Pay ${inr(d.t)} now</button>`:`<p>You are fully paid up. Thank you.</p>`}</div>
+  <div class="card"><h2>Your monthly charges</h2><div class="stack">${parts.map((p,i)=>`<i style="width:${p[1]/c.t*100}%;background:${COL[i]}"></i>`).join("")}</div>${parts.map((p,i)=>`<div class="li"><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${COL[i]};margin-right:8px"></i>${p[0]}</span><b>${inr(p[1])}</b></div>`).join("")}<div class="li b"><span>Total each month</span><span>${inr(c.t)}</span></div></div></div>
+  <div class="g2"><div class="card"><div class="row-b"><h2>Recent receipts</h2><button class="ghost" onclick="go('hist')">All receipts</button></div>${last.map(p=>`<div class="li"><div><b>R-${1000+p.id}</b><small>${p.mo}, ${p.mode}, ${p.date}</small></div><button class="ghost" onclick="showReceipt(${p.id})">View</button></div>`).join("")||`<p class="mute">No receipts yet.</p>`}</div>
+  ${ag?`<div class="card"><div class="row-b"><h2>${esc(ag.title)}</h2><span class="tag warn">AGM</span></div><p class="mute">${esc(ag.body)}</p><br><button class="${ag.rsvp.includes(me.mem)?"btn":"ghost"}" onclick="rsvp(${ag.id})">${ag.rsvp.includes(me.mem)?"You are attending. Tap to cancel":"I will attend"}</button></div>`:""}</div>`}
+function mAcct(){const m=memOf(me.mem),d=dues(m),lp=pays.filter(p=>p.mem==m.id).sort((a,b)=>pd(b.date)-pd(a.date))[0];
+  return head("My account","Your account details with the society")+`<div class="card"><dl><dt>Member number</dt><dd>M-${m.id}</dd><dt>Flat</dt><dd>${m.flat}, ${m.area} sq ft</dd><dt>Occupancy</dt><dd>${m.let?"Let out":"Owner occupied"}</dd><dt>Member since</dt><dd>${m.since}</dd><dt>Share capital</dt><dd>${inr(500)} (5 shares of ${inr(100)})</dd><dt>Advance maintenance</dt><dd>${inr(m.adv)}</dd><dt>Monthly charges</dt><dd>${inr(m.fee)}</dd><dt>Outstanding dues</dt><dd class="${d.t?"bad":"ok"}">${inr(d.t)}</dd><dt>Last payment</dt><dd>${lp?lp.date+", "+inr(lp.amt+(lp.int||0)):"None yet"}</dd></dl></div>`}
+function mPay(){const m=memOf(me.mem),d=dues(m);
+  return head("Make payment","Pay your maintenance online")+(d.l.length?`<div class="row-b"><p class="mute">${d.l.length} bill${d.l.length>1?"s":""} to pay</p><button class="btn" onclick="payStart()">Pay all ${inr(d.t)}</button></div><div class="tw"><table><tr><th>Month</th><th>Due date</th><th class="r">Amount</th><th class="r">Interest</th><th>Status</th><th></th></tr>${d.l.map(b=>{const dd=dueDate(m.soc,b.mo),ov=NOW>dd;return `<tr><td>${b.mo}</td><td>${fmtD(dd)}</td><td class="r">${inr(b.amt)}</td><td class="r">${inr(intOf(m,b))}</td><td><span class="tag ${ov?"bad":"warn"}">${ov?"Overdue":"Due soon"}</span></td><td class="r"><button class="btn sm" onclick="payStart('${b.mo}')">Pay</button></td></tr>`}).join("")}</table></div>`:`<div class="card"><h2>No dues</h2><p class="mute">You have paid every bill. Your receipts are under Receipts.</p></div>`)}
+function mHist(){const m=memOf(me.mem),r=pays.filter(p=>p.mem==m.id&&can(p.soc,p.mem)).sort((a,b)=>b.id-a.id);
+  return head("Receipts","Your payment history")+(r.length?`<div class="tw"><table><tr><th>Receipt</th><th>For</th><th>Mode</th><th>Date</th><th class="r">Amount</th><th></th></tr>${r.map(p=>`<tr><td>R-${1000+p.id}</td><td>${p.mo}</td><td>${p.mode}</td><td>${p.date}</td><td class="r">${inr(p.amt+(p.int||0))}</td><td><button class="ghost" onclick="showReceipt(${p.id})">View</button></td></tr>`).join("")}</table></div>`:`<div class="empty">No receipts yet.</div>`)}
+function mStmt(){const m=memOf(me.mem),mos=["all"].concat(billsOf(m.id).map(b=>b.mo));
+  return head("Statements","Monthly and annual statements, ready to print")+`<div class="row noprint" style="margin-bottom:12px"><label style="max-width:240px;margin:0">Period<select onchange="st.sm=this.value;render()">${mos.map(x=>`<option value="${x}" ${st.sm==x?"selected":""}>${x=="all"?"Whole year to date":x}</option>`).join("")}</select></label><button class="btn" onclick="window.print()">Print or save as PDF</button></div><div class="card">${stmtTable(m,st.sm)}</div>`}
+function mProf(){const m=memOf(me.mem),fam=[[FN[(m.id*5+2)%16]+" "+m.name.split(" ")[1],"Spouse"],[FN[(m.id*3+7)%16]+" "+m.name.split(" ")[1],"Child"]];
+  return head("Profile","Your contact details and family")+`<div class="g2"><div class="card"><h2>Contact details</h2><label>Mobile number<input id="pp" value="${esc(m.phone)}" inputmode="numeric"></label><label>Email<input id="pe" value="${esc(m.email)}"></label><div id="err" class="err" role="alert"></div><div class="row"><button class="btn" onclick="saveProf()">Save changes</button><button class="ghost" onclick="pwDlg()">Change password</button></div></div><div class="card"><h2>Family members</h2>${fam.map(f=>`<div class="li"><b>${esc(f[0])}</b><span class="mute">${f[1]}</span></div>`).join("")}</div></div>`}
+function saveProf(){const m=memOf(me.mem),p=$("#pp").value.trim(),e=$("#pe").value.trim();if(!/^\d{10}$/.test(p)){$("#err").textContent="Enter a 10 digit mobile number.";return}if(!/^\S+@\S+\.\S+$/.test(e)){$("#err").textContent="Enter a valid email address.";return}m.phone=p;m.email=e;log(m.soc,`${m.name} updated contact details`);toast("Profile updated.")}
+function pwDlg(){openDlg(`<h2>Change password</h2><br><label>New password<input id="np" type="password" autocomplete="new-password"></label><label>Confirm new password<input id="np2" type="password" autocomplete="new-password"></label><div id="perr" class="err" role="alert"></div><div class="row"><button class="btn" onclick="savePw()">Change password</button><button class="ghost" onclick="closeDlg()">Cancel</button></div>`)}
+function savePw(){const a=$("#np").value,b=$("#np2").value;if(a.length<6){$("#perr").textContent="Use at least 6 characters.";return}if(a!=b){$("#perr").textContent="The two passwords do not match.";return}closeDlg();toast("Password changed (demo only).")}
+/* online payment */
+function payStart(mo){const d=dues(memOf(me.mem));pay={mo:mo?[mo]:d.l.map(b=>b.mo),method:"UPI"};openDlg(payBody())}
+function setMeth(x){pay.method=x;$("#dlg").innerHTML=payBody()}
+function payBody(){const m=memOf(me.mem),sel=dues(m).l.filter(b=>pay.mo.includes(b.mo)),pr=sel.reduce((a,b)=>a+b.amt,0),it=sel.reduce((a,b)=>a+intOf(m,b),0);
+  return `<h2>Pay maintenance</h2><p class="mute">${esc(socName(m.soc))}, flat ${m.flat}</p><div class="sum" style="margin:12px 0">${sel.map(b=>`<div><span>${b.mo}</span><b>${inr(b.amt)}</b></div>`).join("")}<div><span>Interest on arrears</span><b>${inr(it)}</b></div><div class="tot"><span>Total</span><b>${inr(pr+it)}</b></div></div>
+  <div class="tabs">${["UPI","Card","Net banking"].map(x=>`<button class="${pay.method==x?"on":""}" onclick="setMeth('${x}')">${x}</button>`).join("")}</div>
+  ${pay.method=="UPI"?`<div class="upi">${qr(m.soc*31+7)}<div><p class="b">Scan with any UPI app</p><p class="mute sm">UPI ID: ${upiId(m.soc)}</p></div></div>`:pay.method=="Card"?`<label>Card number<input value="4242 4242 4242 4242"></label><div class="row"><label>Expiry<input value="12/28"></label><label>CVV<input type="password" value="123"></label></div>`:`<label>Bank<select><option>HDFC Bank</option><option>State Bank of India</option><option>ICICI Bank</option><option>Bank of Maharashtra</option></select></label>`}
+  <div class="row"><button class="btn" id="paybtn" onclick="doPay()">Pay ${inr(pr+it)}</button><button class="ghost" onclick="closeDlg()">Cancel</button></div><p class="mute sm" style="margin-top:8px">Demo only. No money moves.</p>`}
+async function doPay(){if(me.role!="member")return;const m=memOf(me.mem),sel=dues(m).l.filter(b=>pay.mo.includes(b.mo));if(!sel.length)return;
+  const bt=$("#paybtn");bt.disabled=true;bt.textContent="Processing payment";await sleep(1200);
+  const rs=sel.map(b=>{const p={id:pid++,mem:m.id,soc:m.soc,mo:b.mo,amt:b.amt,int:intOf(m,b),date:today(),mode:pay.method,src:"Online",tally:false};pays.push(p);return p});
+  log(m.soc,`Online payment by ${m.name}: ${rs.map(p=>"R-"+(1000+p.id)).join(", ")} (${inr(rs.reduce((a,p)=>a+p.amt+p.int,0))} by ${pay.method})`);
+  $("#dlg").innerHTML=`<h2>Payment received</h2><p class="mute">Thank you, ${esc(m.name.split(" ")[0])}. Your receipts are ready.</p><div class="sum" style="margin:12px 0">${rs.map(p=>`<div><span>R-${1000+p.id}, ${p.mo}</span><b>${inr(p.amt+p.int)}</b></div>`).join("")}</div><div class="row"><button class="btn" onclick="showReceipt(${rs[0].id})">View receipt</button><button class="ghost" onclick="closeDlg()">Done</button></div>`}
+render();
+</script>
+</body>
+</html>
