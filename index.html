@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3b3a">
+<meta name="color-scheme" content="light dark">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>VARA Society Accounts | Demo</title>
 <!--
   VARA Enterprises - Society Accounts demo (single file, no build step).
@@ -10,17 +15,21 @@
   Demo logins (password for all: demo123): vara, treasurer1, secretary1, member101 ...
   All Tally 7.1 code lives in the `Tally` object (search for "TALLY ADAPTER"). Swap that one object
   for a real backend call later and no screen needs to change.
+  Mobile: tested layout rules for Android (Chrome) and iOS (Safari): dvh units, safe-area insets,
+  16px inputs (no iOS zoom), 44px touch targets, scrollable tables, stacked cards.
 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 <style>
-:root{--ui:"Plus Jakarta Sans",system-ui,sans-serif;--serif:Fraunces,Georgia,serif;
+:root{--ui:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--serif:Fraunces,Georgia,serif;
 --bg:#f2f5f5;--card:#fff;--ink:#13262a;--mute:#5a6d71;--line:#dbe4e5;--bar1:#c3d3d4;--side:#0f3b3a;--sidei:#c5dcd7;--sideh:#17504d;--btn:#0f3b3a;--btni:#fff;--acc:#e39a1b;--ok:#1b7a52;--okbg:#ddf2e6;--bad:#b4382c;--badbg:#fae3e0;--warn:#855600;--warnbg:#fdefcf;--teal:#0f7c74;
 box-sizing:border-box}
 @media (prefers-color-scheme:dark){:root{--bg:#0a1a1c;--card:#112629;--ink:#e3eeee;--mute:#97adb0;--line:#1f3a3d;--bar1:#2c4a4d;--side:#071d1e;--sidei:#a9c9c3;--sideh:#123634;--btn:#4cc3a7;--btni:#04201d;--ok:#5fd09a;--okbg:#123a2b;--bad:#ff8f82;--badbg:#431f1c;--warn:#f0c05a;--warnbg:#3a2c0b;--teal:#4cc3a7}}
 *,*:before,*:after{box-sizing:inherit}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.55 var(--ui);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.55 var(--ui);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-font-smoothing:antialiased;overflow-wrap:break-word}
+body:has(dialog[open]){overflow:hidden}
 button,input,select,textarea{font:inherit;color:inherit}
+button,.click,select,summary{touch-action:manipulation}
 h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:-.01em}
 h1{font-size:28px;line-height:1.15}h2{font-size:19px}h3{font-size:16px}p{margin:0}
 .mute{color:var(--mute)}.sm{font-size:13px}.r{text-align:right}.b{font-weight:600}.bad{color:var(--bad)}.ok{color:var(--ok)}
@@ -28,14 +37,14 @@ h1{font-size:28px;line-height:1.15}h2{font-size:19px}h3{font-size:16px}p{margin:
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>label{flex:1;min-width:120px}
 .row-b{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.row-b h2{margin:0}
 /* demo bar */
-.demo{position:sticky;top:0;z-index:20;background:#101a1b;color:#e8f0ef;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:6px 18px;font-size:13px;min-height:38px}
+.demo{position:sticky;top:0;z-index:20;background:#101a1b;color:#e8f0ef;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:6px max(18px,env(safe-area-inset-right)) 6px max(18px,env(safe-area-inset-left));padding-top:max(6px,env(safe-area-inset-top));font-size:13px;min-height:38px}
 .demo b{color:var(--acc);font-weight:600}.demo .sp{flex:1}
 .demo label{margin:0;font-weight:500;display:flex;gap:8px;align-items:center}
-.demo select{width:auto;margin:0;padding:3px 8px;background:#1e2d2f;border-color:#34494c;color:#e8f0ef;font-size:13px}
+.demo select{width:auto;max-width:100%;margin:0;padding:3px 8px;background:#1e2d2f;border-color:#34494c;color:#e8f0ef;font-size:13px}
 .demo button{background:transparent;border:1px solid #4a6468;color:#e8f0ef;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:13px}
 /* shell */
-.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:calc(100vh - 38px)}
-.side{background:var(--side);color:var(--sidei);padding:18px 12px;display:flex;flex-direction:column;gap:3px;position:sticky;top:38px;height:calc(100vh - 38px);overflow-y:auto}
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:calc(100vh - 38px);min-height:calc(100dvh - 38px)}
+.side{background:var(--side);color:var(--sidei);padding:18px 12px;display:flex;flex-direction:column;gap:3px;position:sticky;top:38px;height:calc(100vh - 38px);height:calc(100dvh - 38px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .brand{display:flex;gap:10px;align-items:center;padding:4px 8px 18px}
 .mark{width:36px;height:36px;border-radius:8px;background:var(--acc);color:#2b1c00;display:grid;place-items:center;font:600 20px var(--serif);flex:none}
 .brand b{display:block;color:#fff;font-size:15px;line-height:1.2}.brand span{font-size:12px;opacity:.75}
@@ -44,36 +53,39 @@ h1{font-size:28px;line-height:1.15}h2{font-size:19px}h3{font-size:16px}p{margin:
 .nv:hover{background:var(--sideh)}.nv.on{background:var(--sideh);color:#fff;border-left-color:var(--acc);font-weight:600}
 .su{margin-top:auto;padding:12px 8px 0;border-top:1px solid #ffffff22;font-size:13px}.su b{display:block;color:#fff}
 .su button{margin-top:8px;background:transparent;border:1px solid #ffffff44;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:13px}
-.main{padding:24px 30px 60px;max-width:1240px;width:100%}
+.main{padding:24px 30px 60px;max-width:1240px;width:100%;min-width:0}
 .ph{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:20px}
-.ph-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.swsoc{width:auto;margin:0}
+.ph>div:first-child{min-width:0}
+.ph-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.swsoc{width:auto;max-width:100%;margin:0}
 .chip{display:inline-block;background:var(--warnbg);color:var(--warn);border-radius:999px;padding:3px 11px;font-size:13px;font-weight:600}
 /* blocks */
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px;min-width:0}
 .card>h2{margin-bottom:12px}.g2 .card{margin-bottom:0}
-.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-bottom:16px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px}.stat span{display:block;color:var(--mute);font-size:13px}.stat b{font-family:var(--serif);font-size:22px;font-weight:600}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px;margin-bottom:16px}
+.g2>*{min-width:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:0}.stat span{display:block;color:var(--mute);font-size:13px}.stat b{font-family:var(--serif);font-size:22px;font-weight:600}
 label{display:block;font-weight:600;margin-bottom:12px}
-input,select,textarea{display:block;width:100%;margin-top:4px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);outline:0}
+input,select,textarea{display:block;width:100%;margin-top:4px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);outline:0;-webkit-appearance:none;appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23778' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px;text-overflow:ellipsis}
 input:focus,select:focus,textarea:focus{border-color:var(--teal)}
 .btn{background:var(--btn);color:var(--btni);border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer}.btn:hover{filter:brightness(1.12)}.btn.sm{padding:5px 11px;font-size:13px}.btn:disabled{opacity:.5;cursor:default}
 .ghost{background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--ink)}.ghost:hover{border-color:var(--teal)}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .err{color:var(--bad);min-height:20px;margin-bottom:8px;font-size:14px}
-.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:16px}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:16px;max-width:100%}
 table{border-collapse:collapse;width:100%;min-width:520px}th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mute);font-weight:500;font-size:13px}tr:last-child td{border:0}th.r,td.r{text-align:right}
 .click{cursor:pointer}.click:hover{background:var(--bg)}
 .tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12.5px;font-weight:600}.tag.ok{background:var(--okbg);color:var(--ok)}.tag.bad{background:var(--badbg);color:var(--bad)}.tag.warn{background:var(--warnbg);color:var(--warn)}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}.tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);padding:8px 14px;cursor:pointer;white-space:nowrap}.tabs .on{color:var(--ink);border-color:var(--acc);font-weight:600}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);padding:8px 14px;cursor:pointer;white-space:nowrap}.tabs .on{color:var(--ink);border-color:var(--acc);font-weight:600}
 .empty{padding:26px;text-align:center;color:var(--mute)}
-.li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:center}.li:last-child{border:0}.li small{display:block;color:var(--mute)}
-.sum div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line)}.sum .tot{font-weight:700;border-bottom:0;font-size:16px}
+.li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:center}.li>div{min-width:0}.li:last-child{border:0}.li small{display:block;color:var(--mute)}
+.sum div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}.sum div b{text-align:right}.sum .tot{font-weight:700;border-bottom:0;font-size:16px}
 .note{background:var(--warnbg);color:var(--warn);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13.5px}
 /* charts */
 .hbr{display:grid;grid-template-columns:130px 1fr 78px;gap:10px;align-items:center;padding:5px 0;font-size:13.5px}.hbr[onclick]{cursor:pointer}.hbr[onclick]:hover .hl{text-decoration:underline}
 .hl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ht{height:10px;background:var(--bar1);border-radius:5px;overflow:hidden}.ht i{display:block;height:100%;background:var(--teal);border-radius:5px}.hv{text-align:right;font-weight:600}
-.cols{display:flex;gap:18px;align-items:flex-end;height:200px;padding-top:8px}.col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%}.col small{color:var(--mute)}
+.cols{display:flex;gap:18px;align-items:flex-end;height:200px;padding-top:8px}.col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;min-width:0}.col small{color:var(--mute)}
 .cb{flex:1;width:100%;display:flex;gap:4px;align-items:flex-end;justify-content:center}.cb i{display:block;border-radius:4px 4px 0 0;width:34%;max-width:30px}
 .b1{background:var(--bar1)}.b2{background:var(--teal)}
 .lg{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--mute);margin-top:8px}.lg i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-left:10px}.lg i:first-child{margin-left:0}
@@ -81,30 +93,99 @@ table{border-collapse:collapse;width:100%;min-width:520px}th,td{padding:10px 14p
 .dn ul{list-style:none;margin:0;padding:0;flex:1;min-width:180px}.dn li{display:flex;gap:8px;align-items:center;padding:3px 0;font-size:13.5px}.dn li i{width:10px;height:10px;border-radius:3px;flex:none}.dn li b{margin-left:auto}
 .stack{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:12px 0 10px}.stack i{display:block;height:100%}
 /* tally sync */
-.pipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:12px}
+.pipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:10px;margin-bottom:12px}
 .ps{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:28px 1fr;gap:0 10px;align-items:center;opacity:.6}
 .ps b{width:28px;height:28px;border-radius:50%;background:var(--bar1);display:grid;place-items:center;font-size:13px;grid-row:span 2}.ps span{font-weight:600}.ps small{color:var(--mute);font-size:12px}
 .ps.act{opacity:1;border-color:var(--acc)}.ps.act b{background:var(--acc);color:#2b1c00;animation:pl 1s infinite}.ps.done{opacity:1;border-color:var(--ok)}.ps.done b{background:var(--ok);color:#fff}
 @keyframes pl{50%{transform:scale(1.18)}}@media (prefers-reduced-motion:reduce){.ps.act b{animation:none}}
-.con{background:#0b1f21;color:#bfe0d8;border-radius:10px;padding:12px 14px;font:12.5px/1.7 ui-monospace,Menlo,Consolas,monospace;height:190px;overflow:auto;white-space:pre-wrap}
+.con{background:#0b1f21;color:#bfe0d8;border-radius:10px;padding:12px 14px;font:12.5px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;height:190px;overflow:auto;-webkit-overflow-scrolling:touch;white-space:pre-wrap}
 details.card summary{cursor:pointer;font:600 17px var(--serif)}details.card[open] summary{margin-bottom:12px}
-pre{background:#0b1f21;color:#bfe0d8;border-radius:10px;padding:12px 14px;overflow:auto;font:12.5px/1.6 ui-monospace,Menlo,Consolas,monospace;margin:8px 0}
+pre{background:#0b1f21;color:#bfe0d8;border-radius:10px;padding:12px 14px;overflow:auto;-webkit-overflow-scrolling:touch;font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:8px 0}
 /* member */
 .hero{background:var(--side);color:#fff;border-color:var(--side)}.hero .mute{color:#a9c9c3}.hero .big{font:600 46px/1.1 var(--serif);margin:6px 0 12px}.hero .btn{background:var(--acc);color:#2b1c00}
-dl{display:grid;grid-template-columns:minmax(120px,200px) 1fr;gap:0;margin:0}dt,dd{margin:0;padding:10px 0;border-bottom:1px solid var(--line)}dt{color:var(--mute)}dd{font-weight:600}
-.upi{display:flex;gap:16px;align-items:center;margin:12px 0}
+dl{display:grid;grid-template-columns:minmax(110px,200px) 1fr;gap:0;margin:0}dt,dd{margin:0;padding:10px 0;border-bottom:1px solid var(--line)}dt{color:var(--mute)}dd{font-weight:600}
+.upi{display:flex;gap:16px;align-items:center;margin:12px 0;flex-wrap:wrap}
 .wa{background:#dcf8c6;color:#111;border-radius:10px 10px 10px 2px;padding:10px 12px;font-size:13.5px;max-width:440px;white-space:pre-wrap;margin:10px 0}
 .notice{border-bottom:1px solid var(--line);padding:14px 0}.notice:last-child{border:0}.notice p{margin:6px 0}
 /* login */
-.lg-wrap{display:grid;grid-template-columns:1.1fr 1fr;min-height:100vh}
+.lg-wrap{display:grid;grid-template-columns:1.1fr 1fr;min-height:100vh;min-height:100dvh}
 .lg-l{background:var(--side);color:#cfe3df;padding:48px;display:flex;flex-direction:column;justify-content:center;gap:22px}.lg-l h1{color:#fff;font-size:36px;max-width:520px}.lg-l ul{margin:0;padding-left:18px;max-width:460px;line-height:1.7}
 .lg-r{padding:48px;display:flex;flex-direction:column;justify-content:center;gap:14px;max-width:460px;width:100%;margin:0 auto}
 .chips{display:flex;flex-wrap:wrap;gap:8px}.chips button{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px 12px;font-size:13px;cursor:pointer}
 /* dialog and toast */
-dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:22px;width:92%;max-width:460px}dialog.wide{max-width:740px}dialog::backdrop{background:#0009}
-dialog h2{margin-bottom:6px}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#101a1b;color:#fff;padding:10px 18px;border-radius:10px;z-index:99;max-width:90%;box-shadow:0 6px 24px #0005}
-@media (max-width:860px){.app{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;align-items:center;overflow-x:auto;padding:8px;gap:2px}.brand{padding:0 8px 0 4px}.brand span{display:none}.nv{border-left:0;border-bottom:3px solid transparent;border-radius:8px 8px 0 0;white-space:nowrap;width:auto}.nv.on{border-bottom-color:var(--acc)}.su{margin:0 0 0 auto;border:0;padding:0 4px;white-space:nowrap}.main{padding:18px 14px 60px}.lg-wrap{grid-template-columns:1fr}.lg-l,.lg-r{padding:28px 20px}.hbr{grid-template-columns:100px 1fr 70px}}
-@media print{.demo,.side,.noprint,.toast{display:none!important}.app{display:block}.main{padding:0;max-width:none}body{background:#fff;color:#000}.card,.tw{border-color:#bbb}.pd #app,.pd .demo{display:none!important}.pd dialog{position:static;border:0;max-width:none;width:100%;padding:0}.pd dialog .row,.pd dialog .noprint{display:none}}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:22px;width:92%;max-width:460px;max-height:90vh;max-height:90dvh;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:auto}dialog.wide{max-width:740px}dialog::backdrop{background:#0009}
+dialog h2{margin-bottom:6px}.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#101a1b;color:#fff;padding:10px 18px;border-radius:10px;z-index:99;max-width:90%;box-shadow:0 6px 24px #0005}
+
+/* ===== MOBILE: tablets and phones (Android Chrome, iOS Safari) ===== */
+/* Touch devices: 16px fields stop iOS from zooming on focus, 44px targets meet Apple and Google guidance */
+@media (pointer:coarse),(max-width:860px){
+  input,select,textarea{font-size:16px;min-height:44px}
+  textarea{min-height:88px}
+  .btn,.ghost{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .btn.sm,.ghost{padding-top:8px;padding-bottom:8px}
+  .nv{min-height:44px}
+  .tabs button{min-height:44px}
+  .chips button{min-height:40px}
+  .demo button,.su button{min-height:36px}
+  .demo select{min-height:36px}
+  .click:hover,.nv:hover,.btn:hover{filter:none}
+}
+@media (max-width:860px){
+  .demo{position:static;gap:8px;padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+  .demo .sp{display:none}
+  .app{grid-template-columns:minmax(0,1fr);min-height:0}
+  .side{position:sticky;top:0;z-index:15;height:auto;flex-direction:row;align-items:center;overflow-x:auto;overflow-y:hidden;padding:6px max(8px,env(safe-area-inset-right)) 0 max(8px,env(safe-area-inset-left));gap:2px;scrollbar-width:none;box-shadow:0 2px 8px #0003}
+  .side::-webkit-scrollbar{display:none}
+  .brand{padding:0 8px 0 4px;flex:none}.brand span{display:none}
+  .nv{border-left:0;border-bottom:3px solid transparent;border-radius:8px 8px 0 0;white-space:nowrap;width:auto;flex:none}
+  .nv.on{border-bottom-color:var(--acc)}
+  .su{margin:0 0 0 auto;border:0;padding:0 4px;white-space:nowrap;flex:none}
+  .su b{display:none}
+  .su br{display:none}
+  .su button{margin:0}
+  .main{padding:18px max(14px,env(safe-area-inset-right)) 60px max(14px,env(safe-area-inset-left))}
+  .lg-wrap{grid-template-columns:minmax(0,1fr)}
+  .lg-l{padding:28px 20px;gap:16px}.lg-l h1{font-size:28px}
+  .lg-r{padding:24px 20px 40px;max-width:520px}
+  .hbr{grid-template-columns:100px 1fr 70px}
+  dialog{padding:18px}
+  /* keep the login form above the marketing text on phones */
+  .lg-wrap .lg-r{order:-1}
+}
+@media (max-width:600px){
+  .demo .dsm{display:none}
+  h1{font-size:24px}h2{font-size:17px}
+  .ph{gap:10px;margin-bottom:14px}
+  .ph-r{width:100%}.ph-r .swsoc{flex:1;min-width:0}
+  .card{padding:14px 14px}
+  .stat{padding:10px 12px}.stat b{font-size:19px}
+  th,td{padding:9px 10px}
+  .hero .big{font-size:38px}
+  .hbr{grid-template-columns:84px 1fr 60px;gap:8px}
+  .cols{gap:8px;height:170px}
+  .ring{width:124px;height:124px}.ring:before{inset:22px}.ring span{font-size:13px}
+  .dn{gap:14px}.dn ul{min-width:0;flex-basis:100%}
+  dl{grid-template-columns:minmax(96px,38%) 1fr}
+  dialog{width:calc(100% - 20px);padding:16px;border-radius:12px}
+  .row>label{min-width:calc(50% - 6px)}
+  .row>.btn,.row>.ghost{flex:1 1 auto}
+  .con{height:160px}
+  .upi svg{max-width:100%;height:auto}
+  .toast{max-width:calc(100% - 24px);text-align:center}
+}
+@media (max-width:360px){
+  .main{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat b{font-size:17px}
+  .nv{padding:9px 8px;gap:6px}
+}
+/* phones turned sideways: avoid tall dialogs and heavy headers */
+@media (max-height:480px) and (orientation:landscape){
+  .side{position:static}
+  dialog{max-height:94vh;max-height:94dvh}
+  .lg-l{display:none}
+}
+@media print{.demo,.side,.noprint,.toast{display:none!important}.app{display:block}.main{padding:0;max-width:none}body{background:#fff;color:#000}.card,.tw{border-color:#bbb}.pd #app,.pd .demo{display:none!important}.pd dialog{position:static;border:0;max-width:none;width:100%;padding:0;max-height:none;overflow:visible}.pd dialog .row,.pd dialog .noprint{display:none}}
 </style>
 </head>
 <body>
@@ -196,7 +277,8 @@ function openDlg(h,wide){const d=$("#dlg");d.className=wide?"wide":"";d.innerHTM
 const closeDlg=()=>$("#dlg").close();
 function printDlg(){document.body.classList.add("pd");window.print()}
 window.addEventListener("afterprint",()=>document.body.classList.remove("pd"));
-function csv(name,rows){const t=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/csv"}));a.download=name;a.click();toast(name+" downloaded")}
+/* CSV download: iOS Safari needs the link attached to the page and a delayed revoke */
+function csv(name,rows){const t=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n"),u=URL.createObjectURL(new Blob(["\uFEFF"+t],{type:"text/csv;charset=utf-8"})),a=document.createElement("a");a.href=u;a.download=name;a.style.display="none";document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},1500);toast(name+" downloaded")}
 /* access rules: every data read goes through these guards */
 const canSoc=s=>me&&(me.role=="super"||me.soc==s),can=(s,m)=>canSoc(s)&&(me.role!="member"||me.mem==m);
 const canWrite=()=>me.role=="super"||me.role=="treasurer",canNotice=()=>me.role!="member";
@@ -238,9 +320,9 @@ const go=t=>{st.tab=t;st.q="";render();window.scrollTo(0,0)};
 const goSoc=v=>{st.soc=v?+v:null;st.tab=st.soc?"ov":"port";render();window.scrollTo(0,0)};
 function loginView(){const c=[["vara","VARA Enterprises"],["treasurer1","Treasurer"],["secretary1","Secretary"],["member101","Member"],["treasurer2","Another society"]];
   return `<div class="lg-wrap"><section class="lg-l"><div class="brand" style="padding:0"><div class="mark">V</div><div><b>VARA Enterprises</b><span>Society accounting, Thane</span></div></div><h1>Your society's accounts, straight from the Tally books.</h1><ul><li>One login for every treasurer, secretary and member. Everyone sees only what belongs to them.</li><li>Reads Tally 7.1 and never changes it.</li><li>Bills, receipts and payment reminders in a few clicks.</li></ul></section>
-  <section class="lg-r"><div class="card" style="margin:0"><h2>Sign in</h2><br><label>Member ID or mobile number<input id="u" autocomplete="username"></label><label>Password<input id="p" type="password" autocomplete="current-password"></label><div id="err" class="err" role="alert"></div><button class="btn" onclick="login()">Sign in</button></div><p class="mute sm">Demo accounts. The password for all of them is demo123.</p><div class="chips">${c.map(x=>`<button onclick="demo('${x[0]}')">${x[1]}</button>`).join("")}</div></section></div>`}
+  <section class="lg-r"><div class="card" style="margin:0"><h2>Sign in</h2><br><label>Member ID or mobile number<input id="u" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></label><label>Password<input id="p" type="password" autocomplete="current-password" enterkeyhint="go"></label><div id="err" class="err" role="alert"></div><button class="btn" onclick="login()">Sign in</button></div><p class="mute sm">Demo accounts. The password for all of them is demo123.</p><div class="chips">${c.map(x=>`<button onclick="demo('${x[0]}')">${x[1]}</button>`).join("")}</div></section></div>`}
 function demoBar(){const P=[["vara","VARA Enterprises (super user)"],["treasurer1","Treasurer, Sai Krupa CHS"],["secretary1","Secretary, Sai Krupa CHS"],["member101","Member, Sai Krupa CHS"],["treasurer2","Treasurer, Shree Ganesh CHS"]];
-  return `<div class="demo"><b>Demo</b><span>Sample data. Nothing is saved.</span><span class="sp"></span><label>View as <select onchange="switchTo(this.value)">${P.map(p=>`<option value="${p[0]}" ${me.u==p[0]?"selected":""}>${p[1]}</option>`).join("")}${P.some(p=>p[0]==me.u)?"":`<option value="${me.u}" selected>${esc(me.name)}</option>`}</select></label><button onclick="accessTest()">Test access control</button><button onclick="location.reload()">Reset demo</button></div>`}
+  return `<div class="demo"><b>Demo</b><span class="dsm">Sample data. Nothing is saved.</span><span class="sp"></span><label>View as <select onchange="switchTo(this.value)">${P.map(p=>`<option value="${p[0]}" ${me.u==p[0]?"selected":""}>${p[1]}</option>`).join("")}${P.some(p=>p[0]==me.u)?"":`<option value="${me.u}" selected>${esc(me.name)}</option>`}</select></label><button onclick="accessTest()">Test access control</button><button onclick="location.reload()">Reset demo</button></div>`}
 function navItems(){
   if(me.role=="member")return [["home","Home","home"],["acct","My account","file"],["pay","Make payment","card"],["hist","Receipts","receipt"],["stmt","Statements","list"],["not","Notices","bell"],["prof","Profile","user"]];
   if(!st.soc)return [["port","All societies","grid"],["sync","Tally sync","sync"]];
@@ -269,7 +351,7 @@ function portfolio(){const rows=societies.map(s=>({s,k:socStats(s.id)})),T=rows.
   <div class="g2"><div class="card"><h2>Collection by society</h2>${hbar(rows.slice().sort((a,b)=>pc(b.k)-pc(a.k)).map(({s,k})=>({l:s.name,v:pc(k),t:pc(k)+"%",on:`goSoc(${s.id})`})))}</div>
   <div class="card"><h2>Highest dues across societies</h2>${td.map(x=>`<div class="li"><div><b>${esc(x.m.name)}</b><small>${esc(socName(x.m.soc))}, flat ${x.m.flat}</small></div><b class="bad">${inr(x.d.t)}</b></div>`).join("")}</div></div>
   <div class="card"><div class="row-b"><h2>Tally books</h2><button class="ghost" onclick="go('sync')">Open Tally sync</button></div><div class="chips">${societies.map(s=>`<span class="tag ${exc.some(e=>e.soc==s.id)?"warn":"ok"}" title="Last synced ${sync[s.id].at}">${esc(s.name)}</span>`).join("")}</div><p class="mute sm" style="margin-top:10px">${pending(null).length} receipts created in this app are waiting for their Tally voucher.</p></div>
-  <div class="tw"><table><tr><th>Society</th><th class="r">Members</th><th class="r">Billed</th><th class="r">Collected</th><th class="r">Outstanding</th><th class="r">Expenses</th><th>Last Tally sync</th></tr>${rows.map(({s,k})=>`<tr class="click" onclick="goSoc(${s.id})"><td>${esc(s.name)}</td><td class="r">${k.n}</td><td class="r">${inr(k.b)}</td><td class="r">${inr(k.c)}</td><td class="r">${inr(k.d)}</td><td class="r">${inr(k.e)}</td><td>${sync[s.id].at}</td></tr>`).join("")}</table></div><p class="mute sm">Select a society to open its members, receipts and reports.</p>`}
+  <div class="tw"><table><tr><th>Society</th><th class="r">Members</th><th class="r">Billed</th><th class="r">Collected</th><th class="r">Outstanding</th><th class="r">Expenses</th><th>Last Tally sync</th></tr>${rows.map(({s,k})=>`<tr class="click" onclick="goSoc(${s.id})"><td>${esc(s.name)}</td><td class="r">${k.n}</td><td class="r">${inr(k.b)}</td><td class="r">${inr(k.c)}</td><td class="r">${inr(k.d)}</td><td class="r">${inr(k.e)}</td><td>${sync[s.id].at}</td></tr>`).join("")}</table></div><p class="mute sm">Select a society to open its members, receipts and reports. On a phone, swipe the table sideways to see every column.</p>`}
 
 /* ================================================================
    6. COMMITTEE VIEWS (Treasurer, Secretary, and VARA inside a society)
@@ -284,14 +366,14 @@ function overview(){const s=st.soc,k=socStats(s),ms=memList(s),td=topDef(ms,5),a
 function actions(){if(!canWrite())return "";const n=ALLM[latest(st.soc)+1];return `<div class="row" style="margin-bottom:12px">${n?`<button class="btn" onclick="genBills()">Generate ${n} bills</button>`:""}${canNotice()?`<button class="ghost" onclick="remDlg()">Send reminders</button>`:""}</div>${st.msg&&st.ms==st.soc?`<div class="note" role="status">${esc(st.msg)}</div>`:""}`}
 function membersTable(){const q=(st.q||"").toLowerCase(),rows=memList(st.soc).filter(m=>(m.name+" "+m.flat).toLowerCase().includes(q)).map(m=>({m,d:dues(m),bl:billsOf(m.id)})).filter(x=>st.f=="all"||x.d.t>0);
   return `<div class="tw"><table><tr><th>Member</th><th>Flat</th><th class="r">Monthly charges</th><th class="r">Bills paid</th><th class="r">Principal due</th><th class="r">Interest</th><th></th></tr>${rows.map(({m,d,bl})=>`<tr><td>${esc(m.name)}${m.let?` <span class="mute sm">(let out)</span>`:""}</td><td>${m.flat}</td><td class="r">${inr(m.fee)}</td><td class="r">${bl.length-d.l.length}/${bl.length}</td><td class="r">${d.pr?`<span class="tag bad">${inr(d.pr)}</span>`:`<span class="tag ok">Clear</span>`}</td><td class="r">${d.it?inr(d.it):"-"}</td><td class="r"><button class="ghost" onclick="stmtDlg(${m.id})">Statement</button> ${d.pr&&canWrite()?`<button class="btn sm" onclick="payDlg(${m.id})">Record payment</button>`:""}</td></tr>`).join("")||`<tr><td colspan="7" class="empty">No members match.</td></tr>`}</table></div>`}
-function membersView(){return head("Members and dues","Charges, dues and interest for every flat")+actions()+`<div class="row" style="margin-bottom:12px"><label style="max-width:280px;margin:0"><span class="sm mute">Search by name or flat</span><input value="${esc(st.q||"")}" oninput="st.q=this.value;$('#mt').innerHTML=membersTable()"></label><div class="chips" style="padding-bottom:2px"><button class="ghost" ${st.f=="all"?'style="border-color:var(--teal)"':""} onclick="st.f='all';render()">All members</button><button class="ghost" ${st.f=="due"?'style="border-color:var(--teal)"':""} onclick="st.f='due';render()">With dues</button></div></div><div id="mt">${membersTable()}</div>${canWrite()?"":`<p class="mute sm">Secretary access is view only for money. The Treasurer records payments and expenses.</p>`}`}
+function membersView(){return head("Members and dues","Charges, dues and interest for every flat")+actions()+`<div class="row" style="margin-bottom:12px"><label style="max-width:280px;margin:0"><span class="sm mute">Search by name or flat</span><input type="search" enterkeyhint="search" autocapitalize="none" value="${esc(st.q||"")}" oninput="st.q=this.value;$('#mt').innerHTML=membersTable()"></label><div class="chips" style="padding-bottom:2px"><button class="ghost" ${st.f=="all"?'style="border-color:var(--teal)"':""} onclick="st.f='all';render()">All members</button><button class="ghost" ${st.f=="due"?'style="border-color:var(--teal)"':""} onclick="st.f='due';render()">With dues</button></div></div><div id="mt">${membersTable()}</div>${canWrite()?"":`<p class="mute sm">Secretary access is view only for money. The Treasurer records payments and expenses.</p>`}`}
 function receiptsView(){const r=paysOf(st.soc).slice().sort((a,b)=>b.id-a.id);
   const ex=r.length?`<button class="ghost noprint" onclick="exportReceipts()">Export CSV</button>`:"";
   return head("Receipts","Every receipt, with its Tally voucher status",ex)+(r.length?`<div class="tw"><table><tr><th>Receipt</th><th>Member</th><th>For</th><th>Mode</th><th>Date</th><th class="r">Amount</th><th>Tally</th><th></th></tr>${r.map(p=>`<tr><td>R-${1000+p.id}</td><td>${esc(memOf(p.mem).name)}</td><td>${p.mo}</td><td>${p.mode}</td><td>${p.date}</td><td class="r">${inr(p.amt+(p.int||0))}</td><td>${tallyTag(p)}</td><td><button class="ghost" onclick="showReceipt(${p.id})">View</button></td></tr>`).join("")}</table></div>`:`<div class="empty">No receipts yet.</div>`)}
 const tallyTag=p=>p.tally?`<span class="tag ok">In Tally ${p.vch}</span>`:`<span class="tag warn">Awaiting Tally</span>`;
 function exportReceipts(){csv("receipts-"+socName(st.soc).replace(/ /g,"-")+".csv",[["Receipt","Member","Flat","For","Mode","Date","Amount","Interest","Tally voucher"]].concat(paysOf(st.soc).map(p=>["R-"+(1000+p.id),memOf(p.mem).name,memOf(p.mem).flat,p.mo,p.mode,p.date,p.amt,p.int||0,p.tally?p.vch:"Awaiting"])))}
 function expensesView(){const s=st.soc,e=expsOf(s);
-  return head("Expenses","What the society spent and on what")+`<div class="g2"><div class="card"><h2>Spend by head</h2>${donut(groupExp(s))}</div>${canWrite()?`<div class="card"><h2>Add an expense</h2><div class="row"><label>Description<input id="ed" placeholder="For example, lift repair"></label><label>Amount in rupees<input id="ea" type="number" min="1"></label></div><div id="err" class="err" role="alert"></div><button class="btn" onclick="addExp()">Add expense</button></div>`:""}</div>
+  return head("Expenses","What the society spent and on what")+`<div class="g2"><div class="card"><h2>Spend by head</h2>${donut(groupExp(s))}</div>${canWrite()?`<div class="card"><h2>Add an expense</h2><div class="row"><label>Description<input id="ed" placeholder="For example, lift repair"></label><label>Amount in rupees<input id="ea" type="number" inputmode="numeric" min="1"></label></div><div id="err" class="err" role="alert"></div><button class="btn" onclick="addExp()">Add expense</button></div>`:""}</div>
   <div class="tw"><table><tr><th>Expense</th><th>Date</th><th class="r">Amount</th></tr>${e.map(x=>`<tr><td>${esc(x.d)}</td><td>${x.date}</td><td class="r">${inr(x.amt)}</td></tr>`).join("")||`<tr><td colspan="3" class="empty">No expenses recorded.</td></tr>`}</table></div>`}
 function addExp(){if(!canWrite())return;const d=$("#ed").value.trim(),a=Math.round(+$("#ea").value);if(!d||!(a>0)){$("#err").textContent="Enter a description and an amount above zero.";return}exps.push({soc:st.soc,d,amt:a,date:today()});log(st.soc,`Expense added: ${d} (${inr(a)})`);render()}
 function genBills(){if(!canWrite())return;const s=st.soc,n=ALLM[latest(s)+1];if(!n)return;const ms=memList(s);ms.forEach(m=>{m.fee=chg(m).t;bills.push({mem:m.id,mo:n,amt:m.fee})});log(s,`Generated ${n} bills for ${ms.length} members`);st.msg=`${n} bills generated for ${ms.length} members. They are due on ${socOf(s).cfg.due} ${n.split(" ")[0]}.`;st.ms=s;render()}
@@ -342,8 +424,8 @@ function rsvp(id){const n=notices.find(x=>x.id==id);if(!n||me.role!="member"||!c
    ================================================================ */
 const CF=[["svc","Service charge per flat, rupees per month (equal for all flats)"],["int","Interest on arrears, % per year, simple (maximum 21)"],["due","Due day of the month (1 to 28)"],["nonocc","Non-occupancy charge, % of service charge (maximum 10)"],["sink","Sinking fund, % of construction cost per year"],["rep","Repairs and maintenance fund, % of construction cost per year"],["cost","Construction cost, rupees per sq ft"]];
 function ratesView(){const c=socOf(st.soc).cfg,w=canWrite();
-  return head("Bye-law rates","Rates used to build every member's monthly bill")+`<div class="g2"><div class="card">${CF.map(f=>`<label>${f[1]}<input id="cf_${f[0]}" type="number" step="any" value="${c[f[0]]}" oninput="prevCalc()" ${w?"":"disabled"}></label>`).join("")}<div id="err" class="err" role="alert"></div>${w?`<button class="btn" onclick="saveCfg()">Save rates</button>`:`<p class="mute sm">Only the Treasurer can change rates.</p>`}<p class="mute sm" style="margin-top:10px">Changes apply to bills generated afterwards. Interest is simple, runs from the due date until payment, and is never compounded. Keep every rate within your registered bye-laws and general body resolutions.</p></div>
-  <div class="card"><h2>Try a sample flat</h2><div class="row"><label>Area in sq ft<input id="pv_area" type="number" value="650" oninput="prevCalc()"></label><label>Let out<select id="pv_let" onchange="prevCalc()"><option value="0">No</option><option value="1">Yes</option></select></label><label>Parking<select id="pv_park" onchange="prevCalc()"><option value="0">No</option><option value="1">Yes</option></select></label></div><div id="pv" class="sum"></div><div id="chk" class="chips" style="margin-top:12px"></div></div></div>`}
+  return head("Bye-law rates","Rates used to build every member's monthly bill")+`<div class="g2"><div class="card">${CF.map(f=>`<label>${f[1]}<input id="cf_${f[0]}" type="number" inputmode="decimal" step="any" value="${c[f[0]]}" oninput="prevCalc()" ${w?"":"disabled"}></label>`).join("")}<div id="err" class="err" role="alert"></div>${w?`<button class="btn" onclick="saveCfg()">Save rates</button>`:`<p class="mute sm">Only the Treasurer can change rates.</p>`}<p class="mute sm" style="margin-top:10px">Changes apply to bills generated afterwards. Interest is simple, runs from the due date until payment, and is never compounded. Keep every rate within your registered bye-laws and general body resolutions.</p></div>
+  <div class="card"><h2>Try a sample flat</h2><div class="row"><label>Area in sq ft<input id="pv_area" type="number" inputmode="numeric" value="650" oninput="prevCalc()"></label><label>Let out<select id="pv_let" onchange="prevCalc()"><option value="0">No</option><option value="1">Yes</option></select></label><label>Parking<select id="pv_park" onchange="prevCalc()"><option value="0">No</option><option value="1">Yes</option></select></label></div><div id="pv" class="sum"></div><div id="chk" class="chips" style="margin-top:12px"></div></div></div>`}
 function prevCalc(){const c={};for(const f of CF)c[f[0]]=+($("#cf_"+f[0])||{}).value;const a=+$("#pv_area").value||0,lt=$("#pv_let").value=="1",pk=$("#pv_park").value=="1"?300:0,sv=c.svc,rp=Math.round(a*c.cost*c.rep/1200),sk=Math.round(a*c.cost*c.sink/1200),no=lt?Math.round(sv*c.nonocc/100):0,t=sv+rp+sk+no+pk;
   $("#pv").innerHTML=`<div><span>Service charge</span><b>${inr(sv)}</b></div><div><span>Repairs and maintenance fund</span><b>${inr(rp)}</b></div><div><span>Sinking fund</span><b>${inr(sk)}</b></div>${no?`<div><span>Non-occupancy charge</span><b>${inr(no)}</b></div>`:""}${pk?`<div><span>Parking</span><b>${inr(pk)}</b></div>`:""}<div class="tot"><span>Monthly bill</span><b>${inr(t)}</b></div>`;
   $("#chk").innerHTML=`<span class="tag ${c.int<=21?"ok":"bad"}">Interest ${c.int}% (limit 21%)</span><span class="tag ${c.nonocc<=10?"ok":"bad"}">Non-occupancy ${c.nonocc}% (limit 10%)</span>`}
@@ -405,7 +487,7 @@ function mHist(){const m=memOf(me.mem),r=pays.filter(p=>p.mem==m.id&&can(p.soc,p
 function mStmt(){const m=memOf(me.mem),mos=["all"].concat(billsOf(m.id).map(b=>b.mo));
   return head("Statements","Monthly and annual statements, ready to print")+`<div class="row noprint" style="margin-bottom:12px"><label style="max-width:240px;margin:0">Period<select onchange="st.sm=this.value;render()">${mos.map(x=>`<option value="${x}" ${st.sm==x?"selected":""}>${x=="all"?"Whole year to date":x}</option>`).join("")}</select></label><button class="btn" onclick="window.print()">Print or save as PDF</button></div><div class="card">${stmtTable(m,st.sm)}</div>`}
 function mProf(){const m=memOf(me.mem),fam=[[FN[(m.id*5+2)%16]+" "+m.name.split(" ")[1],"Spouse"],[FN[(m.id*3+7)%16]+" "+m.name.split(" ")[1],"Child"]];
-  return head("Profile","Your contact details and family")+`<div class="g2"><div class="card"><h2>Contact details</h2><label>Mobile number<input id="pp" value="${esc(m.phone)}" inputmode="numeric"></label><label>Email<input id="pe" value="${esc(m.email)}"></label><div id="err" class="err" role="alert"></div><div class="row"><button class="btn" onclick="saveProf()">Save changes</button><button class="ghost" onclick="pwDlg()">Change password</button></div></div><div class="card"><h2>Family members</h2>${fam.map(f=>`<div class="li"><b>${esc(f[0])}</b><span class="mute">${f[1]}</span></div>`).join("")}</div></div>`}
+  return head("Profile","Your contact details and family")+`<div class="g2"><div class="card"><h2>Contact details</h2><label>Mobile number<input id="pp" value="${esc(m.phone)}" type="tel" inputmode="numeric" autocomplete="tel-national"></label><label>Email<input id="pe" type="email" inputmode="email" autocapitalize="none" autocomplete="email" value="${esc(m.email)}"></label><div id="err" class="err" role="alert"></div><div class="row"><button class="btn" onclick="saveProf()">Save changes</button><button class="ghost" onclick="pwDlg()">Change password</button></div></div><div class="card"><h2>Family members</h2>${fam.map(f=>`<div class="li"><b>${esc(f[0])}</b><span class="mute">${f[1]}</span></div>`).join("")}</div></div>`}
 function saveProf(){const m=memOf(me.mem),p=$("#pp").value.trim(),e=$("#pe").value.trim();if(!/^\d{10}$/.test(p)){$("#err").textContent="Enter a 10 digit mobile number.";return}if(!/^\S+@\S+\.\S+$/.test(e)){$("#err").textContent="Enter a valid email address.";return}m.phone=p;m.email=e;log(m.soc,`${m.name} updated contact details`);toast("Profile updated.")}
 function pwDlg(){openDlg(`<h2>Change password</h2><br><label>New password<input id="np" type="password" autocomplete="new-password"></label><label>Confirm new password<input id="np2" type="password" autocomplete="new-password"></label><div id="perr" class="err" role="alert"></div><div class="row"><button class="btn" onclick="savePw()">Change password</button><button class="ghost" onclick="closeDlg()">Cancel</button></div>`)}
 function savePw(){const a=$("#np").value,b=$("#np2").value;if(a.length<6){$("#perr").textContent="Use at least 6 characters.";return}if(a!=b){$("#perr").textContent="The two passwords do not match.";return}closeDlg();toast("Password changed (demo only).")}
@@ -415,7 +497,7 @@ function setMeth(x){pay.method=x;$("#dlg").innerHTML=payBody()}
 function payBody(){const m=memOf(me.mem),sel=dues(m).l.filter(b=>pay.mo.includes(b.mo)),pr=sel.reduce((a,b)=>a+b.amt,0),it=sel.reduce((a,b)=>a+intOf(m,b),0);
   return `<h2>Pay maintenance</h2><p class="mute">${esc(socName(m.soc))}, flat ${m.flat}</p><div class="sum" style="margin:12px 0">${sel.map(b=>`<div><span>${b.mo}</span><b>${inr(b.amt)}</b></div>`).join("")}<div><span>Interest on arrears</span><b>${inr(it)}</b></div><div class="tot"><span>Total</span><b>${inr(pr+it)}</b></div></div>
   <div class="tabs">${["UPI","Card","Net banking"].map(x=>`<button class="${pay.method==x?"on":""}" onclick="setMeth('${x}')">${x}</button>`).join("")}</div>
-  ${pay.method=="UPI"?`<div class="upi">${qr(m.soc*31+7)}<div><p class="b">Scan with any UPI app</p><p class="mute sm">UPI ID: ${upiId(m.soc)}</p></div></div>`:pay.method=="Card"?`<label>Card number<input value="4242 4242 4242 4242"></label><div class="row"><label>Expiry<input value="12/28"></label><label>CVV<input type="password" value="123"></label></div>`:`<label>Bank<select><option>HDFC Bank</option><option>State Bank of India</option><option>ICICI Bank</option><option>Bank of Maharashtra</option></select></label>`}
+  ${pay.method=="UPI"?`<div class="upi">${qr(m.soc*31+7)}<div><p class="b">Scan with any UPI app</p><p class="mute sm">UPI ID: ${upiId(m.soc)}</p></div></div>`:pay.method=="Card"?`<label>Card number<input value="4242 4242 4242 4242" inputmode="numeric" autocomplete="cc-number"></label><div class="row"><label>Expiry<input value="12/28" inputmode="numeric" autocomplete="cc-exp"></label><label>CVV<input type="password" value="123" inputmode="numeric" autocomplete="cc-csc"></label></div>`:`<label>Bank<select><option>HDFC Bank</option><option>State Bank of India</option><option>ICICI Bank</option><option>Bank of Maharashtra</option></select></label>`}
   <div class="row"><button class="btn" id="paybtn" onclick="doPay()">Pay ${inr(pr+it)}</button><button class="ghost" onclick="closeDlg()">Cancel</button></div><p class="mute sm" style="margin-top:8px">Demo only. No money moves.</p>`}
 async function doPay(){if(me.role!="member")return;const m=memOf(me.mem),sel=dues(m).l.filter(b=>pay.mo.includes(b.mo));if(!sel.length)return;
   const bt=$("#paybtn");bt.disabled=true;bt.textContent="Processing payment";await sleep(1200);
